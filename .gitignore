@@ -16,7 +16,7 @@ Unity/**/ProjectSettings/*
 # redundante Informationen enthalten, was vermieden werden soll.
 Unity/**/Assets/MiddleVR/*
 Unity/**/Assets/SteamVR/*
-Unity/**/Assets/SteamVR_Input/*
+Unity/**/Assets/SteamVR_Input/**/*
 Unity/**/Assets/Plugins
 
 # Prerequisites
