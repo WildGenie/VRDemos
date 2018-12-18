@@ -72,7 +72,6 @@ public class Interaction : MonoBehaviour
 
             if (toggled)
             {
-                Debug.unityLogger.Log("Wand Button 2 toggle!");
                 if (!colorChanged)
                 {
                     Debug.unityLogger.Log("Farbe wird auf Highlight gesetzt!");
@@ -80,11 +79,10 @@ public class Interaction : MonoBehaviour
                 }
                 else
                 {
-                    Debug.unityLogger.Log("Farbe wird auf Original gesetzt!");
+                    Debug.unityLogger.Log("Farbe wird auf Originalfarbe gesetzt!");
                     myMaterial.color = originalColor;
                 }
                 colorChanged = !colorChanged;
-                Debug.unityLogger.Log("colorChanged gewechselt");
 
             }
         }
