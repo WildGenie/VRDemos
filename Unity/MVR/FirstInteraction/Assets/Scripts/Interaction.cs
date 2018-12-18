@@ -1,18 +1,22 @@
-/// InteractionTest
+Ôªø/// InteractionTest
 /// <summary>
-/// Entwickelt aus dem Sample aus dem Users Guide von MiddleVR
+/// Entwickelt aus dem Sample im Users Guide von MiddleVR
 /// 
 /// Ein Wand-Button wird verwendet, um die Farbe eines Objekts
 /// zu wechseln.
 /// 
 /// Der verwendete Wand-Button und auch die Farbe, auf die gewechselt werden
 /// soll kann im Editor eingestellt werden.
+///
+/// Achtung: bei der Simulation mit Keyboard und Maus k√∂nnen wir nur Buttons
+/// ab nr. 2 verwenden!
 /// </summary>
 
 using UnityEngine;
 using MiddleVR_Unity3D;
 
-public class InteractionTest : MonoBehaviour {
+public class Interaction : MonoBehaviour
+{
 
     /// <summary>
     /// Welcher Wandbutton soll verwendet werden? Default ist die Nummer 2, 
@@ -21,12 +25,12 @@ public class InteractionTest : MonoBehaviour {
     public uint buttonNbr = 2;
 
     /// <summary>
-    /// Die Farbe dieses Materials wird f¸r die ge‰nderte Farbe verwendet.
+    /// Die Farbe dieses Materials wird f√ºr die ge√§nderte Farbe verwendet.
     /// </summary>
     public Material highlightMaterial;
 
     /// <summary>
-    /// Variable, die das Original-Material des Objekts enth‰lt
+    /// Variable, die das Original-Material des Objekts enth√§lt
     /// </summary>
     private Material myMaterial;
 
@@ -56,7 +60,7 @@ public class InteractionTest : MonoBehaviour {
     }
 
     /// <summary>
-    /// In dieser Funktion ist die Logik f¸r das Wechseln der Farbe implementiert.
+    /// In dieser Funktion ist die Logik f√ºr das Wechseln der Farbe implementiert.
     /// </summary>
     private void changeColor()
     {
@@ -81,8 +85,9 @@ public class InteractionTest : MonoBehaviour {
                 }
                 colorChanged = !colorChanged;
                 Debug.unityLogger.Log("colorChanged gewechselt");
-                
+
             }
         }
     }
 }
+
