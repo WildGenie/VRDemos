@@ -407,6 +407,7 @@ GameObject:
   - component: {fileID: 201533296}
   - component: {fileID: 201533295}
   - component: {fileID: 201533294}
+  - component: {fileID: 201533298}
   m_Layer: 0
   m_Name: KugelRechts
   m_TagString: Untagged
@@ -481,6 +482,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &201533298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 201533293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2493b4c170e89ed48812a4fb2336af3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &248132017
 GameObject:
   m_ObjectHideFlags: 0
@@ -1238,7 +1250,7 @@ MonoBehaviour:
   WandButton4: 0
   WandButton5: 0
   DeltaTime: 0
-  ConfigFile: C:/Users/brill/Develop/VRDemos/MiddleVR/standingHeadTrackedWandTracked.vrx
+  ConfigFile: C:/Users/brill/Develop/VRDemos/MVRConfigs/standingHeadTrackedWandTracked.vrx
   VRSystemCenterNode: {fileID: 0}
   TemplateCamera: {fileID: 0}
   ShowWand: 1
