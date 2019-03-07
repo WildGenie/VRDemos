@@ -3,13 +3,15 @@
 /// Entwickelt aus dem Sample im Users Guide von MiddleVR
 /// 
 /// Ein Wand-Button wird verwendet, um die Farbe eines Objekts
-/// zu wechseln.
-/// 
+/// zu wechseln. /// 
 /// Der verwendete Wand-Button und auch die Farbe, auf die gewechselt werden
 /// soll kann im Editor eingestellt werden.
 ///
 /// Achtung: bei der Simulation mit Keyboard und Maus können wir nur Buttons
-/// ab nr. 2 verwenden!
+/// ab nr. 1 verwenden, wobei für den Wand-Button 1 die ESC-Taste verwendet werden muss.
+/// 
+/// Damit dies sowohl im Simulator als auch mit dem Vive-Controller läuft
+/// ist als Default die Taste 2 eingestellt.
 /// </summary>
 
 using UnityEngine;

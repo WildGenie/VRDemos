@@ -465,7 +465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c38e4da4c614144f83abcbeb2479289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonNbr: 2
+  buttonNbr: 3
   highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
 --- !u!1 &1145674339
 GameObject:
@@ -564,7 +564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c38e4da4c614144f83abcbeb2479289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonNbr: 3
+  buttonNbr: 2
   highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
 --- !u!1 &1155637916
 GameObject:
@@ -1029,7 +1029,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: ConfigFile
-      value: C:/Users/brill/Develop/Github/VirtualReality/VRDemos/MVRConfigs/standingHeadTrackedWandUnTracked.vrx
+      value: D:/brill/Develop/VRDemos/MVRConfigs/standingHeadTrackedWandUnTracked.vrx
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
