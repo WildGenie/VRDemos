@@ -76,12 +76,10 @@ public class Interaction : MonoBehaviour
             {
                 if (!colorChanged)
                 {
-                    Debug.unityLogger.Log("Farbe wird auf Highlight gesetzt!");
-                    myMaterial.color = highlightColor;
+                     myMaterial.color = highlightColor;
                 }
                 else
                 {
-                    Debug.unityLogger.Log("Farbe wird auf Originalfarbe gesetzt!");
                     myMaterial.color = originalColor;
                 }
                 colorChanged = !colorChanged;
