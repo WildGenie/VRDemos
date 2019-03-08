@@ -3,7 +3,7 @@
 /// Entwickelt aus dem Sample im Users Guide von MiddleVR
 /// 
 /// Ein Wand-Button wird verwendet, um die Farbe eines Objekts
-/// zu wechseln. /// 
+/// zu wechseln.
 /// Der verwendete Wand-Button und auch die Farbe, auf die gewechselt werden
 /// soll kann im Editor eingestellt werden.
 ///
