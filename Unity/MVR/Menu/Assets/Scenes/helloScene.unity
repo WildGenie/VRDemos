@@ -496,6 +496,10 @@ Prefab:
       propertyPath: ConfigFile
       value: D:/Develop/VRDemos/MVRConfigs/standingHeadUntrackedWandTracked.vrx
       objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
+      propertyPath: m_ShowFPS
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
   m_IsPrefabAsset: 0
@@ -680,6 +684,7 @@ GameObject:
   - component: {fileID: 1496319080}
   - component: {fileID: 1496319079}
   - component: {fileID: 1496319078}
+  - component: {fileID: 1496319082}
   m_Layer: 0
   m_Name: originCube
   m_TagString: Untagged
@@ -754,6 +759,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1496319082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1496319077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1a0b49bf82a3d8409932583a6b08a9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1525514810
 GameObject:
   m_ObjectHideFlags: 0
@@ -800,7 +816,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: a373ed1c460319d458fc4caa24cd47ca, type: 2}
+  - {fileID: 2100000, guid: 5a783f446fc17b24b99213d2bea63856, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
