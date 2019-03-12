@@ -517,7 +517,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: ShowWand
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: m_UseVRMenu
@@ -525,7 +525,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: ConfigFile
-      value: D:/Develop/VRDemos/MVRConfigs/standingHeadTrackedWandUnTracked.vrx
+      value: D:/brill/Develop/VRDemos/MVRConfigs/standingHeadTrackedWandUnTracked.vrx
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: Manipulation
@@ -537,6 +537,10 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
       propertyPath: m_ShowFPS
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
+      propertyPath: Navigation
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -689,9 +693,9 @@ MonoBehaviour:
   m_Height: 768
   m_URL: http://www.hs-kl.de
   m_Zoom: 1
-  m_AutomaticTriggerCollider: 1
-  m_MouseInteractionsIn2D: 1
-  m_MouseInteractionsIn3D: 0
+  m_AutomaticTriggerCollider: 0
+  m_MouseInteractionsIn2D: 0
+  m_MouseInteractionsIn3D: 1
   m_UseTouchEvents: 0
   m_DirectoryProviders:
   - m_URL: http://internal/WebAssets/
