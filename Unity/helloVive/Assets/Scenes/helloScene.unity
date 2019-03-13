@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 102313337}
   - component: {fileID: 102313336}
   m_Layer: 0
-  m_Name: minusX
+  m_Name: KugelHinten
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 445642092}
   - component: {fileID: 445642091}
   m_Layer: 0
-  m_Name: yCube
+  m_Name: yAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 683440686}
   - component: {fileID: 683440685}
   m_Layer: 0
-  m_Name: xCube
+  m_Name: xAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -551,7 +551,7 @@ GameObject:
   - component: {fileID: 961844899}
   - component: {fileID: 961844898}
   m_Layer: 0
-  m_Name: zAxis
+  m_Name: KugelRechts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -636,7 +636,7 @@ GameObject:
   - component: {fileID: 1145674341}
   - component: {fileID: 1145674340}
   m_Layer: 0
-  m_Name: xAxis
+  m_Name: KugelVorne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -721,7 +721,7 @@ GameObject:
   - component: {fileID: 1155637918}
   - component: {fileID: 1155637917}
   m_Layer: 0
-  m_Name: minusZ
+  m_Name: KugelLinks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1009,7 +1009,7 @@ GameObject:
   - component: {fileID: 1496319079}
   - component: {fileID: 1496319078}
   m_Layer: 0
-  m_Name: originCube
+  m_Name: Ursprung
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1094,7 +1094,7 @@ GameObject:
   - component: {fileID: 1525514812}
   - component: {fileID: 1525514811}
   m_Layer: 0
-  m_Name: zCube
+  m_Name: zAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1245,7 +1245,7 @@ GameObject:
   - component: {fileID: 1578927697}
   - component: {fileID: 1578927696}
   m_Layer: 0
-  m_Name: Floor
+  m_Name: Boden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
