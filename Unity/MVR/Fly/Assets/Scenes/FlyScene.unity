@@ -594,6 +594,14 @@ Prefab:
       propertyPath: m_UseVRMenu
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11400008, guid: 654eb2207d0de00459c54995ec518376, type: 2}
+      propertyPath: Fly
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400008, guid: 654eb2207d0de00459c54995ec518376, type: 2}
+      propertyPath: TranslationSpeed
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 654eb2207d0de00459c54995ec518376, type: 2}
   m_IsPrefabAsset: 0
