@@ -187,7 +187,7 @@ GameObject:
   - component: {fileID: 102313337}
   - component: {fileID: 102313336}
   m_Layer: 0
-  m_Name: minusX
+  m_Name: KugelHinten
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -258,7 +258,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &445642090
 GameObject:
@@ -272,7 +272,7 @@ GameObject:
   - component: {fileID: 445642092}
   - component: {fileID: 445642091}
   m_Layer: 0
-  m_Name: yCube
+  m_Name: yAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -343,7 +343,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &683440684
 GameObject:
@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 683440686}
   - component: {fileID: 683440685}
   m_Layer: 0
-  m_Name: xCube
+  m_Name: xAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -428,7 +428,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &961844897
 GameObject:
@@ -442,7 +442,7 @@ GameObject:
   - component: {fileID: 961844899}
   - component: {fileID: 961844898}
   m_Layer: 0
-  m_Name: zAxis
+  m_Name: KugelRechts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -513,7 +513,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1145674339
 GameObject:
@@ -527,7 +527,7 @@ GameObject:
   - component: {fileID: 1145674341}
   - component: {fileID: 1145674340}
   m_Layer: 0
-  m_Name: xAxis
+  m_Name: KugelVorne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -598,7 +598,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1155637916
 GameObject:
@@ -612,7 +612,7 @@ GameObject:
   - component: {fileID: 1155637918}
   - component: {fileID: 1155637917}
   m_Layer: 0
-  m_Name: minusZ
+  m_Name: KugelLinks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -683,7 +683,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1496319077
 GameObject:
@@ -697,7 +697,7 @@ GameObject:
   - component: {fileID: 1496319079}
   - component: {fileID: 1496319078}
   m_Layer: 0
-  m_Name: originCube
+  m_Name: Ursprung
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -768,7 +768,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1525514810
 GameObject:
@@ -782,7 +782,7 @@ GameObject:
   - component: {fileID: 1525514812}
   - component: {fileID: 1525514811}
   m_Layer: 0
-  m_Name: zCube
+  m_Name: zAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -853,7 +853,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1548954329
 GameObject:
@@ -919,7 +919,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 67.393005, y: 11.191001, z: 70.241005}
 --- !u!1 &1578927695
 GameObject:
@@ -933,7 +933,7 @@ GameObject:
   - component: {fileID: 1578927697}
   - component: {fileID: 1578927696}
   m_Layer: 0
-  m_Name: Floor
+  m_Name: Boden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1004,5 +1004,5 @@ Transform:
   m_LocalScale: {x: 4, y: 3, z: 4}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
