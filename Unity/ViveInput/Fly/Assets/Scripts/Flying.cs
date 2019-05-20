@@ -7,7 +7,6 @@ public class Flying : MonoBehaviour
 {
     public GameObject head;
     public GameObject rightHand;
-    public GameObject leftHand;
     public int speed;
 
     // Use this for initialization
@@ -29,15 +28,12 @@ public class Flying : MonoBehaviour
 
     private void increaseSpeed()
     {
-        if (speed != 1)
-        {
-            speed -= 1;
-        }
+        if (speed > 5) speed -= 5;
     }
 
     private void decreaseSpeed()
     {
-        speed += 1;
+        if (speed < 80) speed += 5;
     }
 
     // Update is called once per frame
