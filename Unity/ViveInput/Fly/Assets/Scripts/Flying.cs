@@ -16,14 +16,14 @@ public class Flying : MonoBehaviour
 
     private void Awake()
     {
-        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, increaseSpeed);
-        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, decreaseSpeed);
+        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, decreaseSpeed);
+        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
     }
 
     private void OnDestroy()
     {
-        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, increaseSpeed);
-        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, decreaseSpeed);
+        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, decreaseSpeed);
+        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
     }
 
     private void increaseSpeed()
@@ -92,7 +92,7 @@ public class Flying : MonoBehaviour
 
         Vector3 direction = new Vector3(moveX, rise, moveZ);
 
-        direction = direction / speed;
+        direction = direction / (250 / speed);
         transform.position += direction;
     }
 
