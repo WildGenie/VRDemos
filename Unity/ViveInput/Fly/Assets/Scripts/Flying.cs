@@ -5,7 +5,6 @@ using HTC.UnityPlugin.Vive;
 
 public class Flying : MonoBehaviour
 {
-
     public GameObject head;
     public GameObject rightHand;
     public GameObject leftHand;
@@ -14,6 +13,31 @@ public class Flying : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+    }
+
+    private void Awake()
+    {
+        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, increaseSpeed);
+        ViveInput.AddListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, decreaseSpeed);
+    }
+
+    private void OnDestroy()
+    {
+        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadUp, ButtonEventType.Down, increaseSpeed);
+        ViveInput.RemoveListenerEx(HandRole.LeftHand, ControllerButton.DPadDown, ButtonEventType.Down, decreaseSpeed);
+    }
+
+    private void increaseSpeed()
+    {
+        if (speed != 1)
+        {
+            speed -= 1;
+        }
+    }
+
+    private void decreaseSpeed()
+    {
+        speed += 1;
     }
 
     // Update is called once per frame
@@ -26,24 +50,24 @@ public class Flying : MonoBehaviour
     {
         float rightHandTurnX = rightHand.transform.eulerAngles.x;
         float rightHandTurnY = rightHand.transform.eulerAngles.y;
-        
+
         float rise = 0.0f;
         float pValue = 0.0f;
 
         if (rightHandTurnX > 270 && rightHandTurnX <= 360)
         {
             pValue = 360 - rightHandTurnX;
-            rise = pValue / 10;
+            rise = pValue / 30;
         }
         else if (rightHandTurnX > 0 && rightHandTurnX <= 90)
         {
             pValue = 0 - rightHandTurnX;
-            rise = pValue / 10;
+            rise = pValue / 30;
         }
         else if (rightHandTurnX == 0) rise = 0.0f;
 
         float moveX = 0.0f;
-        float moveZ = 0.0f;        
+        float moveZ = 0.0f;
 
         if (rightHandTurnY >= 0 && rightHandTurnY < 90)
         {
