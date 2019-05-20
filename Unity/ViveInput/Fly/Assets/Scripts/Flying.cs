@@ -3,25 +3,82 @@ using System.Collections.Generic;
 using UnityEngine;
 using HTC.UnityPlugin.Vive;
 
-public class Flying : MonoBehaviour {
-    
+public class Flying : MonoBehaviour
+{
+
     public GameObject head;
     public GameObject rightHand;
     public GameObject leftHand;
     public int speed;
 
-	// Use this for initialization
-	void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    void Start()
+    {
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         if (ViveInput.GetPress(HandRole.RightHand, ControllerButton.FullTrigger) || ViveInput.GetPress(HandRole.LeftHand, ControllerButton.FullTrigger)) flying();
-	}
+    }
 
     private void flying()
     {
-        Vector3 direction = (rightHand.transform.position - head.transform.position) / speed;        
+        float rightHandTurnX = rightHand.transform.eulerAngles.x;
+        float rightHandTurnY = rightHand.transform.eulerAngles.y;
+        
+        float rise = 0.0f;
+        float pValue = 0.0f;
+
+        if (rightHandTurnX > 270 && rightHandTurnX <= 360)
+        {
+            pValue = 360 - rightHandTurnX;
+            rise = pValue / 10;
+        }
+        else if (rightHandTurnX > 0 && rightHandTurnX <= 90)
+        {
+            pValue = 0 - rightHandTurnX;
+            rise = pValue / 10;
+        }
+        else if (rightHandTurnX == 0) rise = 0.0f;
+
+        float moveX = 0.0f;
+        float moveZ = 0.0f;        
+
+        if (rightHandTurnY >= 0 && rightHandTurnY < 90)
+        {
+            pValue = rightHandTurnY / 90;
+            moveX = 2.0f * pValue;
+            moveZ = 2.0f * (1 - pValue);
+        }
+        else if (rightHandTurnY >= 90 && rightHandTurnY < 180)
+        {
+            pValue = (rightHandTurnY - 90) / 90;
+            moveX = 2.0f * (1 - pValue);
+            moveZ = -2.0f * pValue;
+        }
+        else if (rightHandTurnY >= 180 && rightHandTurnY < 270)
+        {
+            pValue = (rightHandTurnY - 180) / 90;
+            moveX = -2.0f * pValue;
+            moveZ = -2.0f * (1 - pValue);
+        }
+        else if (rightHandTurnY >= 270 && rightHandTurnY <= 360)
+        {
+            pValue = (rightHandTurnY - 270) / 90;
+            moveX = -2.0f * (1 - pValue);
+            moveZ = 2.0f * pValue;
+        }
+
+        Vector3 direction = new Vector3(moveX, rise, moveZ);
+
+        direction = direction / speed;
+        transform.position += direction;
+    }
+
+    private void supermanFlying()
+    {
+        Vector3 direction = (rightHand.transform.position - head.transform.position) / speed;
         transform.position += direction;
     }
 }
