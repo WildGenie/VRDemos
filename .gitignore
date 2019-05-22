@@ -18,6 +18,7 @@ Unity/**/Assets/MiddleVR/*
 Unity/**/Assets/SteamVR/*
 Unity/**/Assets/GoogleVR/*
 Unity/**/Assets/SteamVR_Input/**/*
+Unity/**/Assets/HTC.UnityPlugin/**/*
 Unity/**/Assets/Plugins
 # FirstPerson von MVR und von Unity ignorieren?
 Unity/**/Assets/MiddleVR_First*/*
@@ -25,6 +26,7 @@ Unity/**/Assets/Standard Assets/*
 Unity/**/Assets/MiddleVR.meta
 Unity/**/Assets/GoogleVR.meta
 Unity/**/Assets/SteamVR.meta
+Unity/**/Assets/HTC.UnityPlugin.meta
 
 # Prerequisites
 *.d
