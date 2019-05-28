@@ -374,6 +374,7 @@ GameObject:
   - component: {fileID: 306226561}
   - component: {fileID: 306226560}
   - component: {fileID: 306226559}
+  - component: {fileID: 306226563}
   m_Layer: 0
   m_Name: Boden
   m_TagString: Untagged
@@ -450,6 +451,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &306226563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 306226558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbbd0770f0a549341b3441cbd628312e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &308703024
 Prefab:
   m_ObjectHideFlags: 0
@@ -537,7 +549,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: bc574b8acf3b3fc46b62ab828ae94a47, type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: bc574b8acf3b3fc46b62ab828ae94a47, type: 3}
       propertyPath: m_LocalScale.x
@@ -649,7 +661,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 463184, guid: cb3370c18187bb444b240cfb08dcc02f, type: 2}
       propertyPath: m_RootOrder
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb3370c18187bb444b240cfb08dcc02f, type: 2}
