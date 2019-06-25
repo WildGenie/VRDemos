@@ -7,7 +7,7 @@ using HTC.UnityPlugin.Vive;
 /// Class for Flying in a virtual environment using
 /// Unity, OpenVR and Vive Input Utility
 /// </summary>
-public class VIUFly : MonoBehaviour
+public class Navigation : MonoBehaviour
 {
     private const float zero = 0.0f;
     public GameObject head;
