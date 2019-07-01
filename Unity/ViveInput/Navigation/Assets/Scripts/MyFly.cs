@@ -7,9 +7,17 @@ using HTC.UnityPlugin.Vive;
 /// Class for Flying in a virtual environment using
 /// Unity, OpenVR and Vive Input Utility
 /// </summary>
-public class Navigation : MonoBehaviour
+public class MyFly : MonoBehaviour
 {
     private const float zero = 0.0f;
+
+    ///
+    /// Aus dem Original wieder die navigationHand reinholen.
+    /// Wir brauchen ein GameObject oder eine andere Instanz,
+    /// die ein transform besitzt. Die benötigen wir, um die
+    /// Euler-Winkel abzufragen!
+    ///
+
     /// <summary>
     /// Scalar controlling the change in position. Can be increased
     /// and decreased.
@@ -32,10 +40,6 @@ public class Navigation : MonoBehaviour
     /// </summary>
     public HTC.UnityPlugin.Vive.HandRole speedHand = HandRole.RightHand;
 
-    // Use this for initialization
-    void Start()
-    {
-    }
 
     /// <summary>
     /// Use the Touchpad-Buttons Up and Down to increase or decrease speed
@@ -44,8 +48,8 @@ public class Navigation : MonoBehaviour
     /// </summary>
     private void Awake()
     {
-        ViveInput.AddListenerEx(speedHand, ControllerButton.DPadUp, ButtonEventType.Down, decreaseSpeed);
-        ViveInput.AddListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
+        ViveInput.AddListenerEx(speedHand, ControllerButton.DPadUp, ButtonEventType.Down, DecreaseSpeed);
+        ViveInput.AddListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, IncreaseSpeed);
     }
 
     /// <summary>
@@ -53,8 +57,8 @@ public class Navigation : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
-        ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadUp, ButtonEventType.Down, decreaseSpeed);
-        ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
+        ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadUp, ButtonEventType.Down, DecreaseSpeed);
+        ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, IncreaseSpeed);
     }
 
     /// <summary>
@@ -62,12 +66,12 @@ public class Navigation : MonoBehaviour
     /// We only change the speed by adding speedDelta,
     /// if the resulting speed is less than speedMax.
     /// </summary>
-    private void increaseSpeed()
+    private void IncreaseSpeed()
     {
         speed = Mathf.Clamp(speed + speedDelta, zero, speedMaximum);
     }
 
-    private void decreaseSpeed()
+    private void DecreaseSpeed()
     {
         speed = Mathf.Clamp(speed - speedDelta, zero, speedMaximum);
     }
@@ -85,7 +89,7 @@ public class Navigation : MonoBehaviour
     /// </summary>
     private void Fly()
     {
-        float navigationHandTurnX = speedHand.transform.eulerAngles.x;
+        float navigationHandTurnX = speedHand. transform.eulerAngles.x;
         float navigationHandTurnY = speedHand.transform.eulerAngles.y;
 
         float rise = zero;

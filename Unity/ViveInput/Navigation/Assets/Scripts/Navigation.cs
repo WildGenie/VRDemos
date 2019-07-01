@@ -10,26 +10,9 @@ using HTC.UnityPlugin.Vive;
 public class Navigation : MonoBehaviour
 {
     private const float zero = 0.0f;
-    /// <summary>
-    /// Scalar controlling the change in position. Can be increased
-    /// and decreased.
-    /// </summary>
-    public float speed = 2.0F;
-    /// <summary>
-    /// Delta to change the speed. Actually we do not
-    /// use Newtonian physics, but increase speed by
-    /// adding or subracting a delta to the scalar defining
-    /// the speed.
-    /// </summary>
-    public float speedDelta = 1.0F;
-    /// <summary>
-    /// Maximum value for the speed scalar.
-    /// </summary>
-    public float speedMaximum = 20.0f;
-    /// <summary>
-    /// Which controller is used to move and to control 
-    /// the speed.
-    /// </summary>
+    public GameObject head;
+    public GameObject navigationHand;
+    public float speed = 5.0F;
     public HTC.UnityPlugin.Vive.HandRole speedHand = HandRole.RightHand;
 
     // Use this for initialization
@@ -38,9 +21,7 @@ public class Navigation : MonoBehaviour
     }
 
     /// <summary>
-    /// Use the Touchpad-Buttons Up and Down to increase or decrease speed
-    /// We use the Unity Event system to register the callbacks decreaseSpeed
-    /// and increaseSpeed.
+    /// 
     /// </summary>
     private void Awake()
     {
@@ -48,33 +29,23 @@ public class Navigation : MonoBehaviour
         ViveInput.AddListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
     }
 
-    /// <summary>
-    /// Detach the Event-Listeners for the Controller
-    /// </summary>
     private void OnDestroy()
     {
         ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadUp, ButtonEventType.Down, decreaseSpeed);
         ViveInput.RemoveListenerEx(speedHand, ControllerButton.DPadDown, ButtonEventType.Down, increaseSpeed);
     }
 
-    /// <summary>
-    /// Increase the speed. 
-    /// We only change the speed by adding speedDelta,
-    /// if the resulting speed is less than speedMax.
-    /// </summary>
     private void increaseSpeed()
     {
-        speed = Mathf.Clamp(speed + speedDelta, zero, speedMaximum);
+        if (speed > 5.0f) speed -= 5.0f;
     }
 
     private void decreaseSpeed()
     {
-        speed = Mathf.Clamp(speed - speedDelta, zero, speedMaximum);
+        if (speed < 80.0f) speed += 5.0f;
     }
 
-    /// <summary>
-    /// Get the Events and change the speed or the position
-    /// </summary>
+    // Update is called once per frame
     void Update()
     {
         if (ViveInput.GetPress(speedHand, ControllerButton.FullTrigger)) Fly();
@@ -85,8 +56,8 @@ public class Navigation : MonoBehaviour
     /// </summary>
     private void Fly()
     {
-        float navigationHandTurnX = speedHand.transform.eulerAngles.x;
-        float navigationHandTurnY = speedHand.transform.eulerAngles.y;
+        float navigationHandTurnX = navigationHand.transform.eulerAngles.x;
+        float navigationHandTurnY = navigationHand.transform.eulerAngles.y;
 
         float rise = zero;
         float pValue = zero;
@@ -134,6 +105,12 @@ public class Navigation : MonoBehaviour
         Vector3 direction = new Vector3(moveX, rise, moveZ);
 
         direction = direction / (250.0f / speed);
+        transform.position += direction;
+    }
+
+    private void SupermanFlying()
+    {
+        Vector3 direction = (navigationHand.transform.position - head.transform.position) / speed;
         transform.position += direction;
     }
 }

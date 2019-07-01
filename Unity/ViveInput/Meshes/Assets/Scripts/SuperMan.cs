@@ -7,9 +7,21 @@ using HTC.UnityPlugin.Vive;
 /// Class for Flying in a virtual environment using
 /// Unity, OpenVR and Vive Input Utility
 /// </summary>
-public class Navigation : MonoBehaviour
+public class SuperMan : MonoBehaviour
 {
     private const float zero = 0.0f;
+    /// <summary>
+    /// Defining the head-Node. We change the position of this
+    /// game object and move.
+    /// </summary>
+    public GameObject head;
+    /// <summary>
+    /// Which controller is used to control the speed. 
+    /// We use the orientation of this controller for the
+    /// direction and the scalar speed for defining
+    /// the next position.
+    /// </summary>
+    public GameObject navigationHand;
     /// <summary>
     /// Scalar controlling the change in position. Can be increased
     /// and decreased.
@@ -27,8 +39,7 @@ public class Navigation : MonoBehaviour
     /// </summary>
     public float speedMaximum = 20.0f;
     /// <summary>
-    /// Which controller is used to move and to control 
-    /// the speed.
+    /// Which controller is used to move
     /// </summary>
     public HTC.UnityPlugin.Vive.HandRole speedHand = HandRole.RightHand;
 
@@ -134,6 +145,12 @@ public class Navigation : MonoBehaviour
         Vector3 direction = new Vector3(moveX, rise, moveZ);
 
         direction = direction / (250.0f / speed);
+        transform.position += direction;
+    }
+
+    private void SupermanFlying()
+    {
+        Vector3 direction = (navigationHand.transform.position - head.transform.position) / speed;
         transform.position += direction;
     }
 }
