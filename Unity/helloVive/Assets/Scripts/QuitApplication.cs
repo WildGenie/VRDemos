@@ -19,8 +19,8 @@ public class QuitApplication : MonoBehaviour {
             Application.Quit();
             // Esc is ignored in Editor playback mode
             #if UNITY_EDITOR
-           UnityEditor.EditorApplication.isPlaying = false;
-           #endif
+            UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         }
     }
 
