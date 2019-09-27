@@ -581,29 +581,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f479881ccb1d9c4d877cc443f2023fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Name: 
-  m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
-  logOutput: 0
-  theButton: 0
-  myMaterial: {fileID: 0}
-  originalColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  highlightColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  colorChanged: 0
 --- !u!114 &1145674345
 MonoBehaviour:
   m_ObjectHideFlags: 0
