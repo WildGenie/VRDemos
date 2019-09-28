@@ -1,4 +1,7 @@
-﻿/// <summary>
+﻿using UnityEngine;
+using HTC.UnityPlugin.Vive;
+
+/// <summary>
 /// Erstes Beispiel einer Interaktion mit dem Wand.
 /// 
 /// Wir lösen mit einem Button einen Event aus, um die Farbe eines Objekts
@@ -12,10 +15,6 @@
 /// Damit dies sowohl im Simulator als auch mit dem Vive-Controller läuft
 /// ist als Default die Taste 2 eingestellt.
 /// </summary>
-
-using UnityEngine;
-using HTC.UnityPlugin.Vive;
-
 public class Interaction : MonoBehaviour
 {
     /// <summary>
