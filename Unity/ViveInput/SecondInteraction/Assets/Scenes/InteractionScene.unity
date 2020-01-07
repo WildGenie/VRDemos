@@ -490,8 +490,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
+  mainHand: 1
   theButton: 6
-  logOutput: 0
+  logOutput: 1
 --- !u!1 &1145674339
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,6 +1089,18 @@ PrefabInstance:
     - target: {fileID: 11401166, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: m_overrideModel
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11489386, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11489386, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_viveRole.m_roleValueName
+      value: Invalid
+      objectReference: {fileID: 0}
+    - target: {fileID: 11489386, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_viveRole.m_roleValueInt
+      value: -1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
