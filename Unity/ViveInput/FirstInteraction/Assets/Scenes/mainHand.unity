@@ -491,7 +491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
   theButton: 6
-  mainHand: 1
+  mainHand: 0
   logOutput: 0
 --- !u!1 &1145674339
 GameObject:
@@ -1088,6 +1088,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11401166, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: m_overrideModel
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 12406598, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8189340, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

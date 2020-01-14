@@ -398,6 +398,7 @@ GameObject:
   - component: {fileID: 961844899}
   - component: {fileID: 961844898}
   - component: {fileID: 961844902}
+  - component: {fileID: 961844903}
   m_Layer: 0
   m_Name: zAxis
   m_TagString: Untagged
@@ -484,14 +485,33 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 961844897}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c38e4da4c614144f83abcbeb2479289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Name: 
+  m_EditorClassIdentifier: 
   highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
-  theButton: 0
-  logOutput: 0
+  theButton: 6
+  logOutput: 1
+--- !u!114 &961844903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 961844897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0086cb9ef18d8d5499bd7b1fd64446ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightMaterial: {fileID: 2100000, guid: 706912293ffafa34abc1a856e0911d77, type: 2}
+  theButton: 6
+  logOutput: 1
 --- !u!1 &1145674339
 GameObject:
   m_ObjectHideFlags: 0
