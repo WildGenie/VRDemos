@@ -4,16 +4,30 @@ using UnityEngine;
 using HTC.UnityPlugin.Vive;
 
 /// <summary>
-/// Erster Test für die Implementierung der Go-Go Technik
+/// Gogo für einen Wand
 /// 
-/// Hier untersuchen wir, wie wir die Kopf und die Hand-Position
-/// abfragen können und anschließend für die Bewegung des
-/// Objekts, an dem dieses Skript hängt, verwenden können.
+/// IWelche Hand hier verwendet wird hängt davon ab,
+/// welchem der Controller dieses Script hinzugefügt wird.
+/// 
+/// Wir suchen den Kopf mit Hilfe des Tags "MainCamera".
 /// </summary>
-public class CubeGoGo : MonoBehaviour
+public class WandGoGo : MonoBehaviour
 {
-    public GameObject headNode;
-    public GameObject handNode;
+    /// <summary>
+    /// Wir verwenden ein Objekt, um die unskalierte Position 
+    /// des Controllers zu visualisieren.
+    /// 
+    /// In der Literatur wird dafür ein Würfel verwendet.
+    /// </summary>
+    public GameObject replacer;
+
+    /// <summary>
+    /// Als Ursprung der Gogo-Skalierung verwenden wir
+    /// den Kopf, den wir im VIU Rig mit Hilfe des Tags
+    /// MainCamera
+    /// suchen (in Awake).
+    /// </summary>
+    private GameObject headNode;
 
     // Positionsveränderung aktivieren, sonst
     // macht uns der Simulator alles kaputt
@@ -63,9 +77,25 @@ public class CubeGoGo : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        // Kamera als Ursprung unseres Koordinatensystems finden
+        headNode = GameObject.FindGameObjectWithTag("MainCamera");
+
+        // Den Renderer des Ersatzobjekts deaktivieren
+        Renderer rend = replacer.GetComponent<Renderer>();
+        rend.enabled = false;
+
         if (logOutput)
         {
-            Debug.Log(">>> Awake");
+            Debug.Log(">>>>> Awake");
+            if (headNode != null)
+            {
+                Debug.Log("Kamera gefunden!");
+            }
+            else
+            {
+                Debug.Log("Kamera nicht gefunden");
+            }
+
             Debug.Log("Schwellwert D:");
             Debug.Log(DD);
             Debug.Log("Maximale Entfernung Kopf zu Hand:");
@@ -83,21 +113,23 @@ public class CubeGoGo : MonoBehaviour
 
     private void Update()
     {
-        /*if (logOutput)
-        {
-            Debug.Log(" >>> Update");
-        }*/
-
         // Gogo aktivieren
         if (Input.GetKeyDown(KeyCode.F12))
         {
-            if (!startGogo)
-                transform.position = handNode.transform.position;
-
             startGogo = !startGogo;
             /*Debug.Log("Gogo gestartet");
             Debug.Log("Position des Objekts:");
             Debug.Log(transform.position.ToString());*/
+            if (startGogo)
+            {
+                replacer.transform.position = transform.position;
+                replacer.transform.rotation = transform.rotation;
+                replacer.GetComponent<Renderer>().enabled = true;
+            }
+            else
+            {
+                replacer.GetComponent<Renderer>().enabled = false;
+            }
         }
 
         // Hier berechnen wir ständig r, den Abstand zwischen Kopf und Hand,
@@ -108,7 +140,7 @@ public class CubeGoGo : MonoBehaviour
     }
 
     /// <summary>
-    /// Anwendung der Go-Go-Technik für ein Objekt
+    /// Anwendung der Go-Go-Technik auf das angehängte Objekt
     /// 
     /// In der Literatur wird ein "ego-zentrisches" Koordinatensystem
     /// beschrieben. Die Abbildung im Paper zeigt dabei einen Ursprung
@@ -128,22 +160,33 @@ public class CubeGoGo : MonoBehaviour
     {
         // Kopf- und Handposition abfragen, Richtungsvektor daraus bauen
         Vector3 headPosition = headNode.transform.position;
-        Vector3 handPosition = handNode.transform.position;
+        // Wir müssen die unskalierte Position abfragen!
+        // Wir probieren das mal mit parent.
+        // Vermutlich müssen wir dann auch die localPosition
+        // verändern. Das würde vermutlich bedeutetn,
+        // dass wir, falls sich der Skalierungsparameter nicht
+        // verändert, nichts draufaddieren, und
+        // falls die Skalierung greift, dieser Anteil auf die
+        // localPosition gehen. Eben relativ zu parent.
+        Vector3 handPosition = transform.parent.position;
+
+        replacer.transform.position = handPosition;
+
         Vector3 direction = handPosition - headPosition;
         // Der Parameterwert für die aktuelle Position des Controllers
         float lambda = direction.magnitude;
-        /*if (logOutput)
+        if (logOutput)
         {
             Debug.Log(">>> UpdateGogo");
             Debug.Log("Kopfposition:");
             Debug.Log(headNode.transform.position.ToString());
             Debug.Log("Handposition:");
-            Debug.Log(handNode.transform.position.ToString());
+            Debug.Log(handPosition.ToString());
             Debug.Log("Richtungsvektor für den Ray");
             Debug.Log(direction.ToString());
             Debug.Log("Abstand zwischen Kopf und Controller:");
             Debug.Log(lambda);
-        }*/
+        }
 
         // Strahl erzeugen, auf dem das Objekt liegt
         // Der Konstruktor normiert den Richtungsvektor!
@@ -160,14 +203,14 @@ public class CubeGoGo : MonoBehaviour
         }
         // Wir verwenden den Parameterwert und den Strahl
         // für die neue Position des Objekts
-        transform.position = ray.GetPoint(lambda);
+        transform.localPosition = ray.GetPoint(lambda);
 
-        /*if (logOutput)
+        if (logOutput)
         {
-            Debug.Log("Neue Position des Objekts");
+            Debug.Log("Neue Position des Controllers");
             Debug.Log(transform.position.ToString());
-            Debug.Log(" <<< UpdateGogo");
-        }*/
+            Debug.Log(" <<<<< UpdateGogo");
+        }
     }
 
 
