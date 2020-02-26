@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------
-# CMake für die Konsolen-Demos für  VRPN 
+# Logging von Server-Daten in eine Datei
 # --------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.13)
-project(VRPNDemo)
+project(VRPNLogger)
 
 # Allgemeine Optionen
 include(CMakeOptions.txt)
@@ -37,6 +37,6 @@ include_directories(${VRPN_HEADER_DIR})
 link_directories(${VRPN_LIB_DIR})
 
 # Ausführbares Programm
-add_executable (simpleVRPN ${SOURCES} ${HEADER})
+add_executable (simpleLogger ${SOURCES} ${HEADER})
 
-TARGET_LINK_LIBRARIES(simpleVRPN vrpn)
+TARGET_LINK_LIBRARIES(simpleLogger vrpn)

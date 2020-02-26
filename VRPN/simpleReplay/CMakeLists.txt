@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------
-# CMake für die Konsolen-Demos für  VRPN 
+# Logging von Server-Daten in eine Datei
 # --------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.13)
-project(VRPNDemo)
+project(VRPNReplay)
 
 # Allgemeine Optionen
 include(CMakeOptions.txt)
@@ -31,12 +31,15 @@ elseif(UNIX)
     set(VRPN_HEADER_DIR "/usr/local/include/vrpn" CACHE PATH "VRPN header path")
 endif()
 
+# Die Log-Datei in das build-Verzeichnis kopieren, damit sie gefunden wird!
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vrpn.log ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
 # Verzeichnisse für die Header
 include_directories(${VRPN_HEADER_DIR})
 # Verzeichnisse für den Linker
 link_directories(${VRPN_LIB_DIR})
 
 # Ausführbares Programm
-add_executable (simpleVRPN ${SOURCES} ${HEADER})
+add_executable (simpleReplay ${SOURCES} ${HEADER})
 
-TARGET_LINK_LIBRARIES(simpleVRPN vrpn)
+TARGET_LINK_LIBRARIES(simpleReplay vrpn)
