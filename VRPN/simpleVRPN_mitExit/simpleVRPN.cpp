@@ -34,7 +34,7 @@ void VRPN_CALLBACK handle_analog( void* userData,  const vrpn_ANALOGCB a )
     std::cout << "Analog : ";
     std::cout << a.channel[0] << " " << a.channel[1] << std::endl;
 
-        // Experiment: wenn Maus weit genug links, dann stop des Programms
+        // Ist die Maus weit genug links, dann stoppt die Anwendung:
         if (a.channel[0] < 0.1)
               std::cout << "If you move the mouse further to the left the program will exit!" << std::endl;
         if (a.channel[0] < 0.05)
@@ -47,7 +47,7 @@ void VRPN_CALLBACK handle_button( void* userData,  const vrpn_BUTTONCB b )
     if (b.button == 1 && b.state== 1)
         std::cout << "If You release the Esc button, the program will exit!" << std::endl;
     if (b.button == 1 && b.state == 0) {
-         std::cout << "You hit the Esc button, the program will exit!" << std::endl;
+         std::cout << "You released the Esc button, the program will exit!" << std::endl;
          std::cout << "Bye!" << std::endl;         
          done = 1;
     }

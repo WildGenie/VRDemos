@@ -17,8 +17,9 @@
  */
 #include <iostream>
 
-#include <vrpn_Button.h>
-#include <vrpn_Tracker.h>
+#include "vrpn_Button.h"
+#include "vrpn_Tracker.h"
+#include "quat.h"
 
 // Flag für das Beenden der Anwendung
 int done = 0;
@@ -37,18 +38,34 @@ void VRPN_CALLBACK handle_button( void* userData,  const vrpn_BUTTONCB b )
     if (b.button == 1 && b.state == 0) {
          std::cout << "You hit the Esc button, the program will exit!" << std::endl;
          std::cout << "Bye!" << std::endl;         
-         //done = 1;
+         done = 1;
     }
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
 {
+	q_matrix_type   matrix;
+	q_type 	    q;
+	double angle;
+
 	// Es gibt zwei "Sensoren"
 	std::cout << "Sensor " << t.sensor << std::endl;
 	std::cout << "Position:" << std::endl;
 	std::cout << t.pos[0] << "," << t.pos[1] << "," << t.pos[2] << std::endl;
+
+	q_make(q, t.quat[0], t.quat[1], t.quat[2], Q_DEG_TO_RAD(t.quat[3]));
 	std::cout << "Orientierung als Quaternion:" << std::endl;
-	std::cout << t.quat[0] << "," << t.quat[1] << "," << t.quat[2] << "," << t.quat[3] << std::endl;
+	q_print(q);
+
+	// Wir verwenden die Funktionen in quat und rechnen das Quaternion
+	// zu einer Rotationsmatrix um und geben diese ebenfalls aus:
+	q_to_col_matrix(matrix, q);
+	printf("Orientierung als Matrix:\n");
+	q_print_matrix(matrix);
+
+	// Drehwinkel in Gradmaß aus der Matrix lesen und ausgeben:
+	angle = asin(matrix[2][0]);
+	std::cout << "Der Rotationswinkel: " << Q_RAD_TO_DEG(angle) << " Grad" << std::endl;
 }
 
 // Geräte initialisieren
