@@ -60,12 +60,12 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
 	// Wir verwenden die Funktionen in quat und rechnen das Quaternion
 	// zu einer Rotationsmatrix um und geben diese ebenfalls aus:
 	q_to_col_matrix(matrix, q);
-	printf("Orientierung als Matrix:\n");
+	std::cout << "Orientierung als Matrix" << std::endl;
 	q_print_matrix(matrix);
 
 	// Drehwinkel in Gradmaß aus der Matrix lesen und ausgeben:
-	angle = asin(matrix[2][0]);
-	std::cout << "Der Rotationswinkel: " << Q_RAD_TO_DEG(angle) << " Grad" << std::endl;
+	angle = Q_RAD_TO_DEG(asin(matrix[2][0]));
+	std::cout << "Der Rotationswinkel: " << angle << " Grad" << std::endl;
 }
 
 // Geräte initialisieren
