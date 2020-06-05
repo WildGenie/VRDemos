@@ -70,6 +70,7 @@ public class Highlighter : MonoBehaviour
     {
         UpdateHighlight();
     }
+
     /// <summary>
     /// Callback, der in Awake() registriert 
     /// und in Update aufgerufen wird.
@@ -82,16 +83,24 @@ public class Highlighter : MonoBehaviour
     {
         if (!highlight)
         {
-            if (logOutput)
-                Debug.unityLogger.Log("Farbe wird auf Originalfarbe gesetzt!");
             myMaterial.color = originalColor;
         }
         else
         {
             if (logOutput)
-                Debug.unityLogger.Log("Farbe wird auf Highlight gesetzt!");
+                Debug.unityLogger.Log(">>> UpdateHighLight: Farbe wird auf Highlight gesetzt!");
             myMaterial.color = highlightColor;
         }
+    }
+
+    /// <summary>
+    /// Wir toggeln den Zustand.
+    /// </summary>
+    private void ChangeHighlightState()
+    {
+        highlight = !highlight;
+        if (logOutput)
+            Debug.unityLogger.Log(">>> ChangeHighlightState: Highlighting umgeschaltet!");
     }
 
     /// <summary>
@@ -114,8 +123,8 @@ public class Highlighter : MonoBehaviour
 
         ViveInput.AddListenerEx(HandRole.RightHand,
                                 theButton,
-                               ButtonEventType.Up,
-                               ChangeHighlightState);
+                                ButtonEventType.Up,
+                                ChangeHighlightState);
 
         ViveInput.AddListenerEx(HandRole.LeftHand,
                                 theButton,
@@ -153,14 +162,6 @@ public class Highlighter : MonoBehaviour
                                    theButton,
                                    ButtonEventType.Up,
                                    ChangeHighlightState);
-    }
-
-    /// <summary>
-    /// Wir toggeln den Zustand.
-    /// </summary>
-    private void ChangeHighlightState()
-    {
-        highlight = !highlight;
     }
 }
 

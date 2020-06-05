@@ -10,7 +10,7 @@ using HTC.UnityPlugin.Vive;
 /// soll kann im Editor eingestellt werden.
 /// 
 /// Als Default verwenden wir den Wand in der rechten Hand. 
-/// Diese "main hand" kann im Editor gewechselt werden.
+/// Diese "main hand" kann im Editor mit Hilfe dieser Klasse gewechselt werden.
 /// </summary>
 public class HighlighterMainHand : MonoBehaviour
 {
@@ -79,6 +79,7 @@ public class HighlighterMainHand : MonoBehaviour
     {
         UpdateHighlight();
     }
+
     /// <summary>
     /// Callback, der in Awake() registriert
     /// und in Update aufgerufen wird.
@@ -89,8 +90,6 @@ public class HighlighterMainHand : MonoBehaviour
     {
         if (!highlight)
         {
-            if (logOutput)
-                Debug.unityLogger.Log("Farbe wird auf Originalfarbe gesetzt!");
             myMaterial.color = originalColor;
         }
         else
@@ -99,6 +98,16 @@ public class HighlighterMainHand : MonoBehaviour
                 Debug.unityLogger.Log("Farbe wird auf Highlight gesetzt!");
             myMaterial.color = highlightColor;
         }
+    }
+
+    /// <summary>
+    /// Wir toggeln den Zustand.
+    /// </summary>
+    private void ChangeHighlightState()
+    {
+        highlight = !highlight;
+        if (logOutput)
+            Debug.unityLogger.Log(">>> ChangeHighlightState: Highlighting umgeschaltet!");
     }
 
     /// <summary>
@@ -138,14 +147,6 @@ public class HighlighterMainHand : MonoBehaviour
                                    theButton,
                                    ButtonEventType.Up,
                                    ChangeHighlightState);
-    }
-
-    /// <summary>
-    /// Wir toggeln den Zustand.
-    /// </summary>
-    private void ChangeHighlightState()
-    {
-        highlight = !highlight;
     }
 }
 
