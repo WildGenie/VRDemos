@@ -4,14 +4,15 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71e10a6c8bc50f348a3bcd045dce48c3, type: 3}
   m_Name: VIUSettings
   m_EditorClassIdentifier: 
-  m_autoCheckNewVIUVersion: 1
+  m_autoCheckNewVIUVersion: 0
   m_virtualDPadDeadZone: 0.15
   m_individualTouchpadJoystickValue: 0
   m_autoLoadBindingConfigOnStart: 1
@@ -20,7 +21,7 @@ MonoBehaviour:
   m_bindingInterfaceSwitchKey: 98
   m_bindingInterfaceSwitchKeyModifier: 303
   m_bindingInterfaceObjectSource: {fileID: 101448, guid: 26a034c83db7bcb4f99de4ddf57cbcfc,
-    type: 2}
+    type: 3}
   m_activateGoogleVRModule: 1
   m_daydreamSyncPadPressToTrigger: 1
   m_autoLoadExternalCameraConfigOnStart: 1
@@ -29,6 +30,7 @@ MonoBehaviour:
   m_externalCameraSwitchKey: 109
   m_externalCameraSwitchKeyModifier: 303
   m_activateOculusVRModule: 1
+  m_oculusVRAndroidManifestPath: 
   m_activateSteamVRModule: 1
   m_activateSimulatorModule: 1
   m_simulatorAutoTrackMainCamera: 1
@@ -37,6 +39,9 @@ MonoBehaviour:
   m_simulatorKeyMoveSpeed: 1.5
   m_simulatorMouseRotateSpeed: 90
   m_simulatorKeyRotateSpeed: 90
+  m_simulatorLeftControllerModel: 2
+  m_simulatorRightControllerModel: 2
+  m_simulatorOtherModel: 3
   m_activateUnityNativeVRModule: 1
   m_activateWaveVRModule: 1
   m_simulateWaveVR6DoFController: 0
@@ -46,3 +51,4 @@ MonoBehaviour:
   m_waveVRVirtualArmExtensionOffset: {x: -0.13, y: 0.14, z: 0.08}
   m_waveVRVirtualWristRestPosition: {x: 0, y: 0, z: 0.35}
   m_waveVRVirtualHandRestPosition: {x: 0, y: 0, z: 0.05}
+  m_waveVRAndroidManifestPath: 
