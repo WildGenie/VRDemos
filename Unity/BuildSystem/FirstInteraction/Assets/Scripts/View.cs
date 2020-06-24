@@ -9,10 +9,12 @@ public class View : MonoBehaviour
     /// <summary>
     /// Die Farbe dieses Materials wird für die geänderte Farbe verwendet.
     /// </summary>
+    [Tooltip("Highlight Material setzen")]
     public Material highlightMaterial;
     /// <summary>
     /// Möchten wir Log-Ausgaben in der Callback-Funktion?
     /// </summary>
+    [Tooltip("Sollen ausgaben auf der Konsole gemacht werden?")]
     public bool logOutput = false;
 
     /// <summary>
@@ -27,23 +29,13 @@ public class View : MonoBehaviour
     /// <summary>
     /// Variable, die das Original-Material des Objekts enthält
     /// </summary>
-    private Material myMaterial;
+    protected Material myMaterial;
 
     /// <summary>
     /// Wir fragen die Materialien ab und speichern die Farben als Instanzen
     /// der Klasse Color ab.
     /// </summary>
-    private Color originalColor, highlightColor;
-
-    /// <summary>
-    /// In Awake erstellen wir den Controller und stellen
-    /// die Verbindung zur Model-Klasse her.
-    /// </summary>
-    protected virtual void Awake()
-    {
-        Mod = new Model(false);
-        Con = new Controller(Mod);
-    }
+    protected Color originalColor, highlightColor;
 
     /// <summary>
     /// Abfragen des Materials des GameObjects, dem
@@ -59,27 +51,6 @@ public class View : MonoBehaviour
     }
 
     /// <summary>
-    /// Update wird frameabhängig aufgerufen.
-    /// 
-    /// Wir fragen mit DateTime.Now
-    /// die aktuelle Uhrzeit ab,
-    /// setzen diese Zeit und besetzen die 
-    /// Variablen für die Ausgabe der Uhrzeiger.
-    /// </summary>
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.H))
-        {
-            if (logOutput)
-                Debug.Log(">>> Farbe wird gewechselt!");
-            Con.ToggleHighlight();
-        }
-
-        ChangeColor();
-    }
-
-
-    /// <summary>
     /// Callback, der in Awake() registriert 
     /// und in Update aufgerufen wird.
     /// 
@@ -87,7 +58,7 @@ public class View : MonoBehaviour
     /// Bemerkung: bei mehr als zwei Zuständen sollte man diese
     /// Funktionalität mit Hilfe einer finite state machine lösen!
     /// </summary>
-    private void ChangeColor()
+    protected void Draw()
     {
         if (!Mod.status)
         {
@@ -95,6 +66,7 @@ public class View : MonoBehaviour
         }
         else
         {
+            Debug.Log("In Highlight else");
             myMaterial.color = highlightColor;
         }
     }
