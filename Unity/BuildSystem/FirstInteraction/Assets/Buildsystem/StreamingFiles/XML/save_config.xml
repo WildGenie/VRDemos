@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<SceneConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SceneConfiguration>
+    <SceneData>
+      <sceneName>VIU-Win</sceneName>
+      <viu>true</viu>
+      <gvr>false</gvr>
+      <wavevr>false</wavevr>
+      <buildtargetGroup>Standalone</buildtargetGroup>
+      <buildtarget>StandaloneWindows64</buildtarget>
+    </SceneData>
+  </SceneConfiguration>
+</SceneConfig>
