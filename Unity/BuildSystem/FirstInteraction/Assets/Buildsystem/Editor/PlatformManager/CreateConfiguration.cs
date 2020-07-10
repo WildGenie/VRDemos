@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-
+/// <summary>
+/// This class provides a template to create a specific platfrom configuration
+/// </summary>
 public class CreateConfiguration : EditorWindow
 {
     //Enum: provides BuildTarget options
@@ -30,12 +32,16 @@ public class CreateConfiguration : EditorWindow
     //buildtarget name
     private string buildTargetName;
 
+    //unity project name
     private string projectName;
 
+    //description
     private string description;
 
+    //index for active scenes example: [Index 1: SceneName: TestScene1], [Index 2: SceneName: TestScene2]
     private int index;
 
+    //contains all active scenes
     private string[] allScenesPath;
 
     /// <summary>
@@ -43,6 +49,7 @@ public class CreateConfiguration : EditorWindow
     /// </summary>
     PlatformDataManager PlatformDataManager;
 
+    //configuration name
     private string configName;
 
 
@@ -52,10 +59,12 @@ public class CreateConfiguration : EditorWindow
     /// <param name="platformDataManager"></param>
     public void SetDataManager(PlatformDataManager platformDataManager)
     {
-        this.PlatformDataManager = platformDataManager;
-        
+        this.PlatformDataManager = platformDataManager;      
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public void init()
     {
         this.index = 0;
@@ -65,18 +74,27 @@ public class CreateConfiguration : EditorWindow
         
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private void OnEnable()
     {
         init();
         
     }
 
+    /// <summary>
+    /// loads 
+    /// </summary>
     private void OnGUI()
     {
         loadActiveScenes();
         showCreateConfiguration();
     }
 
+    /// <summary>
+    /// show the window to create a new platform configuration
+    /// </summary>
     private void showCreateConfiguration()
     {
         
@@ -84,9 +102,8 @@ public class CreateConfiguration : EditorWindow
         GUILayout.Label("Create Configuration:");
         configName = EditorGUILayout.TextField("Config. Name:", configName);
         description = EditorGUILayout.TextField("Description: ", description);
-        projectName = EditorGUILayout.TextField("Product Name: ", projectName);
+        EditorGUILayout.TextField("Product Name: ", projectName);
         GUILayout.EndArea();
-
         GUILayout.BeginArea(new Rect(0, 80, 250, 250));      
         index = EditorGUILayout.Popup(
             "Choose Scene:",
@@ -127,6 +144,9 @@ public class CreateConfiguration : EditorWindow
         GUILayout.EndArea();
     }
 
+    /// <summary>
+    /// loads all active scenes in unity project (active means the scenes are enabled in Buildprocess)
+    /// </summary>
     private void loadActiveScenes()
     {
         this.allScenesPath = this.PlatformDataManager.getScenesPath();

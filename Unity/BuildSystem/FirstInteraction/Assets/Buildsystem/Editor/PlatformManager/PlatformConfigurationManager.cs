@@ -5,48 +5,90 @@ using UnityEditor;
 using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
 using System.Configuration;
+using System;
+using UnityEngine.Networking;
+using Unity.EditorCoroutines.Editor;
 
 public class PlatformConfigurationManager : EditorWindow
 {
 
+    //
     private int index;
 
+    //
     private List<PlatformData> platformDatas;
 
+    //
     private string[] platFormConfigs;
 
+    //
     private PlatformDataManager PlatformDataManager;
 
+    //
+    private bool loadPlatformConfigurationData = true;
+
+    private Build build;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="platformDataManager"></param>
     internal void setPlatformDataMangager(PlatformDataManager platformDataManager)
     {
         this.PlatformDataManager = platformDataManager;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     void init()
     {
+        this.build = new Build();
         this.platFormConfigs = new string[100];
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     void OnEnable()
     {
         init();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     void OnGUI()
     {
         ShowPlatformConfigurationManager();
         this.platFormConfigs = PlatformDataManager.getAllConfigurationNamesAsArray();
+        loadPlatformConfigurationXML();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    void loadPlatformConfigurationXML()
+    {
+        if(loadPlatformConfigurationData)
+        {
+            Debug.Log("File loaded once");
+            PlatformDataManager.loadData();
+            this.loadPlatformConfigurationData = false;
+        }
+    }
 
+    /// <summary>
+    /// 
+    /// </summary>
     void ShowPlatformConfigurationManager()
     {
+       
+        GUI.Box(new Rect(0, 0, 260, 140), "Platform Configuration: ");
         
-        GUILayout.BeginArea(new Rect(0, 0, 250, 250));
-        GUILayout.Label("Platform Configuration:");
-        index = EditorGUI.Popup(new Rect(0, 20, 250, 250), "Configurations:", index, platFormConfigs);
+        index = EditorGUI.Popup(new Rect(0, 25, 255, 15), "Configurations:", index, platFormConfigs);
 
-        if (GUI.Button(new Rect(0, 45, 50, 50 - 26), "Create"))
+        if (GUI.Button(new Rect(5, 65, 55, 24), "Create"))
         {
             CreateConfiguration createConfigurationWindow =
             (CreateConfiguration)EditorWindow.GetWindow(typeof(CreateConfiguration), true,
@@ -55,43 +97,90 @@ public class PlatformConfigurationManager : EditorWindow
             createConfigurationWindow.Show();
         }
 
-        if (GUI.Button(new Rect(55, 45, 50, 50 - 26), "Edit"))
+        if (GUI.Button(new Rect(65,65,55,24), "Edit"))
         {
-
+            Debug.Log("Edit index:" + index);
             EditPlatformDataWindow editConfigurationWindow =
             (EditPlatformDataWindow)EditorWindow.GetWindow(typeof(EditPlatformDataWindow), true,
             "Edit Configuration");
             editConfigurationWindow.SetDataManager(this.PlatformDataManager);
             //editConfigurationWindow.SetPlatformDataToEdit(this.PlatformDataManager.getPlatformDataFromIndex(this.index));
-            editConfigurationWindow.SetIndex(this.index);
+            editConfigurationWindow.SetIndex(index);
             editConfigurationWindow.Show();
         }
 
-        if (GUI.Button(new Rect(110, 45, 50, 50 - 26), "Save"))
+        if (GUI.Button(new Rect(5, 95, 55, 24), "Save"))
         {
+            PlatformDataManager.saveData();
             this.Close();
         }
 
-        if (GUI.Button(new Rect(0, 90, 50, 50-26), "Load"))
+        if (GUI.Button(new Rect(65, 95, 55, 24), "Delete"))
         {
-            PrepareLoadConfigurationSetup(this.index);
+            DeleteSelectedPlatformConfiguration(index);
         }
 
-        if(GUI.Button(new Rect(0, 150, 50, 50 - 26), "Close"))
+        GUI.Box(new Rect(265, 0, 120, 200), "Load Configurations: ");
+
+        if (GUI.Button(new Rect(267, 65, 115, 24), "Open Selected"))
+        {
+            Debug.Log("Load index:" + index);
+            PrepareLoadConfigurationSetup(index);
+        }
+
+        if (GUI.Button(new Rect(267, 95, 115, 24), "Build Selected"))
+        {
+            build.BuildConfiguration();
+        }
+
+        GUI.Box(new Rect(390, 0, 125, 200), "Buildsystem WebApp: ");
+
+        if (GUI.Button(new Rect(392, 40, 120, 24), "Load"))
+        {
+
+        }
+
+        if (GUI.Button(new Rect(392, 70, 120, 24), "Store"))
+        {
+            StoreToBuildsystemServer();
+        }
+
+        if (GUI.Button(new Rect(392, 100, 120, 24), "Store Selected"))
+        {
+            StoreSelectedToBuildsystemServer();
+        }
+
+
+        if (GUI.Button(new Rect(392, 130, 120, 24), "WebApp"))
+        {
+            Application.OpenURL("http://localhost:3000/");
+        }
+
+        GUI.Box(new Rect(0, 145, 260, 55), "");
+        if (GUI.Button(new Rect(5, 165, 117 , 24), "Close"))
         {
             this.Close();
         }
-        GUILayout.EndArea();
     }
 
     void PrepareLoadConfigurationSetup(int index)
     {
+
         PlatformData dataToLoad = new PlatformData();
         dataToLoad = PlatformDataManager.getPlatformDataFromIndex(index);
+        Debug.Log(dataToLoad.sceneName);
         LoadScene(dataToLoad.sceneName);
         prepareBuildSettings(dataToLoad.buildtarget, dataToLoad.buildtargetGroup);
         this.Close();
 
+    }
+
+    void DeleteSelectedPlatformConfiguration(int index)
+    {
+        PlatformData dataToDelete = new PlatformData();
+        dataToDelete = PlatformDataManager.getPlatformDataFromIndex(index);
+        Debug.Log("i: " + index + " => " + "File: " + dataToDelete.configurationName);
+        PlatformDataManager.DeleteSelectedPlatformDataByData(dataToDelete);
     }
 
     /// <summary>
@@ -125,6 +214,33 @@ public class PlatformConfigurationManager : EditorWindow
     }
 
 
+    void StoreSelectedToBuildsystemServer()
+    {
+
+        PlatformData dataToSend = new PlatformData();
+        dataToSend = PlatformDataManager.getPlatformDataFromIndex(index);
+        String jsonString = JsonUtility.ToJson(dataToSend);
+        Debug.Log(jsonString);
+        EditorCoroutineUtility.StartCoroutine(Upload(jsonString), this);
+        //PlatformDataManager.PlatformDataList
+    }
+
+    void StoreToBuildsystemServer()
+    {
+        List<PlatformData> datalist = PlatformDataManager.PlatformDataList.platformDatas;
+
+        
+
+        foreach(PlatformData data in datalist)
+        {
+            String jsonString = JsonUtility.ToJson(data);
+            Debug.Log(jsonString);
+            EditorCoroutineUtility.StartCoroutine(Upload(jsonString), this);
+        }
+
+        
+    }
+
     /// <summary>
     /// This method loads the selected assets
     /// </summary>
@@ -135,5 +251,30 @@ public class PlatformConfigurationManager : EditorWindow
     {
         
 
+    }
+
+    /// <summary>
+    /// this method sends the project information to the webserver
+    /// </summary>
+    /// <param name="jsonString"></param>
+    /// <returns></returns>
+    IEnumerator Upload(String jsonString)
+    {
+        using (UnityWebRequest www = UnityWebRequest.Put("http://localhost:8080/api/unity/platformconfigurationservice", jsonString))
+        {
+            www.method = UnityWebRequest.kHttpVerbPOST;
+            www.SetRequestHeader("Content-Type", "application/json");
+            www.SetRequestHeader("Accept", "application/json");
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                Debug.Log("Form upload complete!");
+            }
+        }
     }
 }

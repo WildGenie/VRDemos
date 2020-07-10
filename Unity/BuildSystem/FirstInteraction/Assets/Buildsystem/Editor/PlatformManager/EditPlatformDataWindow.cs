@@ -49,6 +49,9 @@ public class EditPlatformDataWindow : EditorWindow
     private int index;
 
     //
+    private string sceneName;
+
+    //
     private string[] allScenesPath;
 
     /// <summary>
@@ -182,6 +185,7 @@ public class EditPlatformDataWindow : EditorWindow
             platformData.configurationName = configName;
             platformData.description = description;
             platformData.projectName = projectName;
+            platformData.sceneName = allScenesPath[index];
             getBuildTarget(bt);
             getBuildTargetGroupOption(btg);
             platformData.buildtarget = buildTargetName;
@@ -191,7 +195,8 @@ public class EditPlatformDataWindow : EditorWindow
             platformData.wavevr = assignWaveSDK;
             platformData.middleVR = assignMiddleVR;
             //PlatformDataManager.updatePlatformDataByIndex(storedIndex, platformData);
-            PlatformDataManager.updatePlatformDataByData(platformData.configurationName, platformData);
+            //PlatformDataManager.updatePlatformDataByData(platformData.configurationName, platformData);
+            PlatformDataManager.updatePlatformData(platformData);
             this.Close();
         }
 
