@@ -4,6 +4,8 @@ using HTC.UnityPlugin.Vive;
 /// <summary>
 /// Highlighter für ein GameObject,
 /// abhängig von einem Tastendruck auf einem Controller.
+/// Diese Klasse lässt zu die verwendete Hand
+/// (links/rechts) im Inspektor auszuwechseln.
 /// 
 /// Wir verwenden das Observer-Pattern.
 /// <remarks>
@@ -13,7 +15,7 @@ using HTC.UnityPlugin.Vive;
 /// unabhängigen Bestandteile!
 /// </remarks>
 /// </summary>
-public class Highlighter : View
+public class HighlighterWithHand : View
 {
     /// <summary>
     /// Der verwendete Button kann im Editor mit Hilfe
@@ -25,6 +27,14 @@ public class Highlighter : View
     public ControllerButton theButton = ControllerButton.Trigger;
 
     /// <summary>
+    /// Welche Hand wollen wir verwenden?
+    /// 
+    /// Default ist die rechte Hand.
+    /// </summary>
+    [Tooltip("Welcher Controller (links/rechts) soll für das Highlight verwendet werden?")]
+    public HandRole mainHand = HandRole.RightHand;
+
+    /// <summary>
     /// In Awake erstellen wir den Controller und stellen
     /// die Verbindung zur Model-Klasse her.
     /// </summary>
@@ -34,22 +44,12 @@ public class Highlighter : View
         Mod.Attach(this);
 
         // Listener für den Button registrieren
-        ViveInput.AddListenerEx(HandRole.RightHand,
+        ViveInput.AddListenerEx(mainHand,
                                 theButton,
                                 ButtonEventType.Down,
                                 Mod.Toggle);
 
-        ViveInput.AddListenerEx(HandRole.RightHand,
-                                theButton,
-                                ButtonEventType.Up,
-                                Mod.Toggle);
-
-        ViveInput.AddListenerEx(HandRole.LeftHand,
-                                theButton,
-                                ButtonEventType.Down,
-                                Mod.Toggle);
-
-        ViveInput.AddListenerEx(HandRole.LeftHand,
+        ViveInput.AddListenerEx(mainHand,
                                 theButton,
                                 ButtonEventType.Up,
                                 Mod.Toggle);
@@ -61,22 +61,12 @@ public class Highlighter : View
     /// </summary>
     private void OnDestroy()
     {
-        ViveInput.RemoveListenerEx(HandRole.RightHand,
+        ViveInput.RemoveListenerEx(mainHand,
                                    theButton,
                                    ButtonEventType.Down,
                                    Mod.Toggle);
 
-        ViveInput.RemoveListenerEx(HandRole.RightHand,
-                                   theButton,
-                                   ButtonEventType.Up,
-                                   Mod.Toggle);
-
-        ViveInput.RemoveListenerEx(HandRole.LeftHand,
-                                   theButton,
-                                   ButtonEventType.Down,
-                                   Mod.Toggle);
-
-        ViveInput.RemoveListenerEx(HandRole.LeftHand,
+        ViveInput.RemoveListenerEx(mainHand,
                                    theButton,
                                    ButtonEventType.Up,
                                    Mod.Toggle);
