@@ -6,9 +6,6 @@ using HTC.UnityPlugin.Vive;
 /// 
 /// Wir lösen mit einem Button einen Event aus, um die Farbe eines Objekts
 /// zu wechseln.
-/// 
-/// Der verwendete Wand-Button und auch die Farbe, auf die gewechselt wird
-/// wird im Editor eingestellt.
 /// </summary>
 public class Highlighter : MonoBehaviour
 {

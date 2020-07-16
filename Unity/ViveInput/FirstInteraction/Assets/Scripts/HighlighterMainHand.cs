@@ -6,9 +6,9 @@ using HTC.UnityPlugin.Vive;
 /// 
 /// Wir lösen mit einem Button einen Event aus, um die Farbe eines Objekts
 /// zu wechseln.
+/// 
 /// Der verwendete Wand-Button und auch die Farbe, auf die gewechselt werden
 /// soll kann im Editor eingestellt werden.
-/// 
 /// Als Default verwenden wir den Wand in der rechten Hand. 
 /// Diese "main hand" kann im Editor mit Hilfe dieser Klasse gewechselt werden.
 /// </summary>
