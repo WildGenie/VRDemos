@@ -1277,12 +1277,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1035897022}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1035897025 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 116882, guid: cb3370c18187bb444b240cfb08dcc02f,
-    type: 3}
-  m_PrefabInstance: {fileID: 1035897022}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1053226531
 GameObject:
   m_ObjectHideFlags: 0
@@ -1960,7 +1954,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1585122869}
   - component: {fileID: 1585122870}
-  - component: {fileID: 1585122871}
   m_Layer: 0
   m_Name: VROrigin
   m_TagString: Untagged
@@ -2001,22 +1994,6 @@ MonoBehaviour:
   decButton: 2
   accButton: 20
   speed: 0.5
---- !u!114 &1585122871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1585122868}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f9fbec13c25c504fa6971df19cbfbfe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  head: {fileID: 1035897025}
-  flyButton: 6
-  flyControl: 0
-  flyHand: {fileID: 1035897024}
 --- !u!1 &1623784457
 GameObject:
   m_ObjectHideFlags: 0
