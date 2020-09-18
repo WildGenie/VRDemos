@@ -22,7 +22,7 @@ Unity/**/Assets/SteamVR_Input/**/*
 Unity/**/Assets/HTC.UnityPlugin/
 Unity/**/Assets/HTC.UnityPlugin/ViveInputUtility/*
 Unity/**/Assets/Plugins
-# FirstPerson von MVR und von Unity ignorieren?
+# FirstPerson von MVR und von Unity ignorieren
 Unity/**/Assets/MiddleVR_First*/*
 Unity/**/Assets/Standard Assets/*
 # Unity Meta-Files
