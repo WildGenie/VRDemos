@@ -126,7 +126,9 @@ public class Flying : MonoBehaviour
         Quaternion moveOrientation = flyOrientation.transform.rotation;
         Vector3 dir = (moveOrientation * Vector3.forward).normalized;
 
-        transform.rotation = moveOrientation;
+        //Change: Removed update of the players rotation in dependence of the child object (controller).
+        //Reason: Updating the players roation changes the orientation of the child object and thus consecutive the orientation of the parent object.
+        //transform.rotation = moveOrientation;
         transform.Translate(speed * Time.deltaTime * dir);
     }
 }
