@@ -6,37 +6,37 @@
 *.swp
 
 # Andere Unity Verzeichnisse
-Unity/**/Library/*
-Unity/**/obj/*
-Unity/**/ProjectSettings/*
-Unity/**/Logs/*
+**/Library/*
+**/obj/*
+**/ProjectSettings/*
+**/Logs/*
 
 # Assets wie MiddleVR, Steam, VRTK oder GitHub
 # Aktuell gehen wir davon aus, dass wir dies rekonstruieren können.
 # Wenn wir diese Verzeichnisse jedes mal in Git schreiben wird das repo
 # redundante Informationen enthalten, was vermieden werden soll.
-Unity/**/Assets/MiddleVR/*
-Unity/**/Assets/SteamVR/*
-Unity/**/Assets/GoogleVR/*
-Unity/**/Assets/SteamVR_Input/**/*
-Unity/**/Assets/HTC.UnityPlugin/*
-Unity/**/Assets/HTC.UnityPlugin.meta
-Unity/**/Assets/HTC.UnityPlugin/ViveInputUtility/*
+**/Assets/MiddleVR/*
+**/Assets/SteamVR/*
+**/Assets/GoogleVR/*
+**/Assets/SteamVR_Input/**/*
+**/Assets/HTC.UnityPlugin/*
+**/Assets/HTC.UnityPlugin.meta
+**/Assets/HTC.UnityPlugin/ViveInputUtility/*
 # MBU package ignorieren
-Unity/**/Assets/MBU/**/*
-Unity/**/Assets/MBU/
-Unity/**/Assets/MBU.meta
-Unity/**/Assets/Plugins
+**/Assets/MBU/**/*
+**/Assets/MBU/
+**/Assets/MBU.meta
+**/Assets/Plugins
+
 # FirstPerson von MVR und von Unity ignorieren
-Unity/**/Assets/MiddleVR_First*/*
-Unity/**/Assets/Standard Assets/*
+**/Assets/MiddleVR_First*/*
+**/Assets/Standard Assets/*
 # Unity Meta-Files
-Unity/**/Assets/MiddleVR.meta
-Unity/**/Assets/GoogleVR.meta
-Unity/**/Assets/SteamVR.meta
-Unity/**/Assets/HTC.UnityPlugin.meta
+**/Assets/MiddleVR.meta
+**/Assets/GoogleVR.meta
+**/Assets/HTC.UnityPlugin.meta
 # Wave3D für Focus Plus ignorieren
-Unity/**/Assets/WaveVR/**/*
+**/Assets/WaveVR/**/*
 
 # Prerequisites
 *.d
