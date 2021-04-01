@@ -1,19 +1,30 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2020, HTC Corporation. All rights reserved. ===========
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using HTC.UnityPlugin.Vive;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditorInternal.VR;
 using UnityEngine;
+using Assembly = System.Reflection.Assembly;
+
+#if UNITY_2018_1_OR_NEWER
+using UnityEditor.PackageManager;
+using PackageInfo = UnityEditor.PackageManager.PackageInfo;
+#endif
+
+#if UNITY_2017_3_OR_NEWER
+using UnityEditor.Compilation;
+#endif
 
 namespace HTC.UnityPlugin.VRModuleManagement
 {
     // This script manage define symbols used by VIU
-    public class VRModuleManagerEditor : UnityEditor.AssetModificationProcessor
+    public class VRModuleManagerEditor : AssetPostprocessor
 #if UNITY_2017_1_OR_NEWER
         , UnityEditor.Build.IActiveBuildTargetChanged
 #endif
@@ -131,6 +142,7 @@ namespace HTC.UnityPlugin.VRModuleManagement
                 if (type == null) { return false; }
                 if (s_foundTypes == null) { s_foundTypes = new Dictionary<string, Type>(); }
                 s_foundTypes.Add(name, type);
+
                 return true;
             }
 
@@ -171,8 +183,10 @@ namespace HTC.UnityPlugin.VRModuleManagement
                 {
                     foreach (var requiredFile in reqFileNames)
                     {
-                        var files = Directory.GetFiles(Application.dataPath, requiredFile, SearchOption.AllDirectories);
-                        if (files == null || files.Length == 0) { return false; }
+                        if (!DoesFileExist(requiredFile))
+                        {
+                            return false;
+                        }
                     }
                 }
 
@@ -246,10 +260,25 @@ namespace HTC.UnityPlugin.VRModuleManagement
                         Type type;
                         if (!s_foundTypes.TryGetValue(method.typeName, out type)) { continue; }
 
-                        var argTypes = new Type[method.argTypeNames == null ? 0 : method.argTypeNames.Length];
+                        if (method.argTypeNames == null)
+                        {
+                            continue;
+                        }
+
+                        bool isAllArgTypesFound = true;
+                        var argTypes = new Type[method.argTypeNames.Length];
                         for (int i = argTypes.Length - 1; i >= 0; --i)
                         {
-                            if (!s_foundTypes.TryGetValue(method.argTypeNames[i], out argTypes[i])) { continue; }
+                            if (!s_foundTypes.TryGetValue(method.argTypeNames[i], out argTypes[i]))
+                            {
+                                isAllArgTypesFound = false;
+                                break;
+                            }
+                        }
+
+                        if (!isAllArgTypesFound)
+                        {
+                            continue;
                         }
 
                         if (type.GetMethod(method.name, method.bindingAttr, null, CallingConventions.Any, argTypes, method.argModifiers ?? new ParameterModifier[0]) == null) { continue; }
@@ -273,6 +302,7 @@ namespace HTC.UnityPlugin.VRModuleManagement
         public abstract class SymbolRequirementCollection : List<SymbolRequirement> { }
 
         private static List<SymbolRequirement> s_symbolReqList;
+        private static HashSet<string> s_referencedAssemblyNameSet;
 
         static VRModuleManagerEditor()
         {
@@ -286,8 +316,13 @@ namespace HTC.UnityPlugin.VRModuleManagement
             s_symbolReqList.Add(new SymbolRequirement()
             {
                 symbol = "VIU_PLUGIN",
-                reqTypeNames = new string[] { "HTC.UnityPlugin.Vive.ViveInput" },
-                reqFileNames = new string[] { "ViveInput.cs", "VRModuleManagerEditor.cs" },
+                validateFunc = (req) => true,
+            });
+
+            s_symbolReqList.Add(new SymbolRequirement()
+            {
+                symbol = "VIU_PACKAGE",
+                validateFunc = (req) => VIUSettingsEditor.PackageManagerHelper.IsPackageInList(VIUSettingsEditor.VIUPackageName),
             });
 
             s_symbolReqList.Add(new SymbolRequirement()
@@ -334,9 +369,47 @@ namespace HTC.UnityPlugin.VRModuleManagement
             }
         }
 
+        // From UnityEditor.AssetPostprocessor
+        public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            foreach (string assetPath in deletedAssets)
+            {
+                string deletedFileName = Path.GetFileName(assetPath);
+                bool isFound = s_symbolReqList.Exists((req) =>
+                {
+                    if (req == null || req.reqFileNames == null)
+                    {
+                        return false;
+                    }
+
+                    foreach (string fileName in req.reqFileNames)
+                    {
+                        if (fileName == deletedFileName)
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+
+                if (isFound)
+                {
+                    if (!s_delayCallRemoveRegistered)
+                    {
+                        s_delayCallRemoveRegistered = true;
+                        EditorApplication.delayCall += RemoveAllVIUSymbols;
+                    }
+                    break;
+                }
+            }
+        }
+
         private static bool s_isUpdatingScriptingDefineSymbols = false;
         private static void DoUpdateScriptingDefineSymbols()
         {
+            if (EditorApplication.isPlaying) { EditorApplication.update -= DoUpdateScriptingDefineSymbols; return; }
+
             // some symbolRequirement depends on installed packages (only works when UNITY_2018_1_OR_NEWER)
             Vive.VIUSettingsEditor.PackageManagerHelper.PreparePackageList();
 
@@ -344,6 +417,11 @@ namespace HTC.UnityPlugin.VRModuleManagement
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
+                if (!IsReferenced(assembly))
+                {
+                    continue;
+                }
+
                 try
                 {
                     foreach (var symbolReq in s_symbolReqList)
@@ -397,48 +475,9 @@ namespace HTC.UnityPlugin.VRModuleManagement
 
         private static bool s_delayCallRemoveRegistered;
 
-        // This is called when ever an asset deleted
-        // If the deleted asset include sdk files, then remove all symbols defined by VIU
-        public static AssetDeleteResult OnWillDeleteAsset(string assetPath, RemoveAssetOptions option)
-        {
-            var fullPath = Application.dataPath + "/../" + assetPath;
-            var isDir = Directory.Exists(fullPath); // otherwise, removed asset is file
-            var reqFileFound = false;
-
-            foreach (var symbolReq in s_symbolReqList)
-            {
-                if (symbolReq == null || symbolReq.reqFileNames == null) { continue; }
-
-                foreach (var reqFileName in symbolReq.reqFileNames)
-                {
-                    if (isDir)
-                    {
-                        var files = Directory.GetFiles(fullPath, reqFileName, SearchOption.AllDirectories);
-                        reqFileFound = files != null && files.Length > 0;
-                    }
-                    else
-                    {
-                        reqFileFound = Path.GetFileName(fullPath) == reqFileName;
-                    }
-
-                    if (reqFileFound)
-                    {
-                        if (!s_delayCallRemoveRegistered)
-                        {
-                            s_delayCallRemoveRegistered = true;
-                            EditorApplication.delayCall += RemoveAllVIUSymbols;
-                        }
-
-                        return AssetDeleteResult.DidNotDelete;
-                    }
-                }
-            }
-
-            return AssetDeleteResult.DidNotDelete;
-        }
-
         private static void RemoveAllVIUSymbols()
         {
+            s_delayCallRemoveRegistered = false;
             EditorApplication.delayCall -= RemoveAllVIUSymbols;
 
             var defineSymbols = GetDefineSymbols();
@@ -459,6 +498,128 @@ namespace HTC.UnityPlugin.VRModuleManagement
         private static void SetDefineSymbols(List<string> symbols)
         {
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget), string.Join(";", symbols.ToArray()));
+        }
+
+        private static bool IsReferenced(Assembly assembly)
+        {
+            return GetReferencedAssemblyNameSet().Contains(assembly.GetName().Name);
+        }
+
+        private static HashSet<string> GetReferencedAssemblyNameSet()
+        {
+            if (s_referencedAssemblyNameSet != null)
+            {
+                return s_referencedAssemblyNameSet;
+            }
+
+            s_referencedAssemblyNameSet = new HashSet<string>();
+            Assembly playerAssembly = typeof(VRModule).Assembly;
+            Assembly editorAssembly = typeof(VRModuleManagerEditor).Assembly;
+
+            // C# player referenced assemblies
+            foreach (AssemblyName asmName in playerAssembly.GetReferencedAssemblies())
+            {
+                s_referencedAssemblyNameSet.Add(asmName.Name);
+            }
+
+            // C# editor referenced assemblies
+            foreach (AssemblyName asmName in editorAssembly.GetReferencedAssemblies())
+            {
+                s_referencedAssemblyNameSet.Add(asmName.Name);
+            }
+
+#if UNITY_2018_1_OR_NEWER
+            // Unity player referenced assemblies
+            UnityEditor.Compilation.Assembly playerUnityAsm = FindUnityAssembly(playerAssembly.GetName().Name, AssembliesType.Player);
+            if (playerUnityAsm != null)
+            {
+                foreach (UnityEditor.Compilation.Assembly asm in playerUnityAsm.assemblyReferences)
+                {
+                    s_referencedAssemblyNameSet.Add(asm.name);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Player assembly not found.");
+            }
+
+            // Unity editor referenced assemblies
+            UnityEditor.Compilation.Assembly editorUnityAsm = FindUnityAssembly(editorAssembly.GetName().Name, AssembliesType.Editor);
+            if (editorUnityAsm != null)
+            {
+                foreach (UnityEditor.Compilation.Assembly asm in editorUnityAsm.assemblyReferences)
+                {
+                    s_referencedAssemblyNameSet.Add(asm.name);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Editor assembly not found.");
+            }
+#elif UNITY_2017_3_OR_NEWER
+            UnityEditor.Compilation.Assembly[] assemblies = CompilationPipeline.GetAssemblies();
+            foreach (UnityEditor.Compilation.Assembly asm in assemblies)
+            {
+                s_referencedAssemblyNameSet.Add(asm.name);
+            }
+#endif
+
+            return s_referencedAssemblyNameSet;
+        }
+
+#if UNITY_2018_1_OR_NEWER
+        private static UnityEditor.Compilation.Assembly FindUnityAssembly(string name, AssembliesType type)
+        {
+            UnityEditor.Compilation.Assembly foundAssembly = null;
+            UnityEditor.Compilation.Assembly[] assemblies = CompilationPipeline.GetAssemblies(type);
+            foreach (UnityEditor.Compilation.Assembly asm in assemblies)
+            {
+                if (asm.name == name)
+                {
+                    foundAssembly = asm;
+                    break;
+                }
+            }
+
+            return foundAssembly;
+        }
+#endif
+
+        private static bool DoesFileExist(string fileName)
+        {
+            string[] fileNamesInAsset = Directory.GetFiles(Application.dataPath, fileName, SearchOption.AllDirectories);
+            if (fileNamesInAsset != null && fileNamesInAsset.Length > 0)
+            {
+                return true;
+            }
+#if UNITY_2018_1_OR_NEWER
+            PackageCollection packages = VIUSettingsEditor.PackageManagerHelper.GetPackageList();
+            foreach (UnityEditor.PackageManager.PackageInfo package in packages)
+            {
+                if (package == null)
+                {
+                    continue;
+                }
+
+                if (package.source == PackageSource.BuiltIn)
+                {
+                    continue;
+                }
+
+                var resolvedPath = package.resolvedPath.Trim();
+                if (string.IsNullOrEmpty(resolvedPath))
+                {
+                    continue;
+                }
+
+                string[] fileNamesInPackage = Directory.GetFiles(resolvedPath, fileName, SearchOption.AllDirectories);
+                if (fileNamesInPackage != null && fileNamesInPackage.Length > 0)
+                {
+                    return true;
+                }
+            }
+#endif
+            return false;
         }
     }
 }

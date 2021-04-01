@@ -1,7 +1,7 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2020, HTC Corporation. All rights reserved. ===========
 
 using HTC.UnityPlugin.Utility;
-#if VIU_STEAMVR
+#if VIU_STEAMVR && UNITY_STANDALONE
 using HTC.UnityPlugin.Vive;
 using HTC.UnityPlugin.Vive.SteamVRExtension;
 using System.Text;
@@ -34,19 +34,28 @@ namespace HTC.UnityPlugin.VRModuleManagement
 
     public sealed partial class SteamVRModule : VRModule.ModuleBase
     {
-        public override int moduleIndex { get { return (int)VRModuleActiveEnum.SteamVR; } }
+        public override int moduleOrder { get { return (int)DefaultModuleOrder.SteamVR; } }
 
-#if VIU_STEAMVR
+        public override int moduleIndex { get { return (int)VRModuleSelectEnum.SteamVR; } }
+
+#if VIU_STEAMVR && UNITY_STANDALONE
         private class CameraCreator : VRCameraHook.CameraCreator
         {
             public override bool shouldActive { get { return s_moduleInstance == null ? false : s_moduleInstance.isActivated; } }
 
             public override void CreateCamera(VRCameraHook hook)
             {
+#if UNITY_2019_3_OR_NEWER && VIU_XR_GENERAL_SETTINGS
+                if (hook.GetComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>() == null)
+                {
+                    hook.gameObject.AddComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>();
+                }
+#else
                 if (hook.GetComponent<SteamVR_Camera>() == null)
                 {
                     hook.gameObject.AddComponent<SteamVR_Camera>();
                 }
+#endif
             }
         }
 

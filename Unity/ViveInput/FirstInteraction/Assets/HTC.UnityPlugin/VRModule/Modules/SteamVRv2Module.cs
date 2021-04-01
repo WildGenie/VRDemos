@@ -1,6 +1,6 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2020, HTC Corporation. All rights reserved. ===========
 
-#if VIU_STEAMVR
+#if VIU_STEAMVR && UNITY_STANDALONE
 using HTC.UnityPlugin.Utility;
 using HTC.UnityPlugin.Vive;
 using System.Text;
@@ -15,13 +15,19 @@ using UnityEngine.XR;
 #elif UNITY_5_4_OR_NEWER
 using XRSettings = UnityEngine.VR.VRSettings;
 #endif
+#if VIU_XR_GENERAL_SETTINGS
+using UnityEngine.XR.Management;
+#endif
 #endif
 
 namespace HTC.UnityPlugin.VRModuleManagement
 {
     public sealed partial class SteamVRModule : VRModule.ModuleBase
     {
-#if VIU_STEAMVR_2_0_0_OR_NEWER
+        public const string OPENVR_XR_LOADER_NAME = "Open VR Loader";
+        public const string OPENVR_XR_LOADER_CLASS_NAME = "OpenVRLoader";
+
+#if VIU_STEAMVR_2_0_0_OR_NEWER && UNITY_STANDALONE
         public class ActionArray<T> where T : struct
         {
             private static readonly EnumUtils.EnumDisplayInfo s_enumInfo;
@@ -176,7 +182,6 @@ namespace HTC.UnityPlugin.VRModuleManagement
         private uint m_digitalDataSize;
         private uint m_analogDataSize;
         private uint m_originInfoSize;
-        private uint m_activeActionSetSize;
 
         private ETrackingUniverseOrigin m_prevTrackingSpace;
         private bool m_hasInputFocus = true;
@@ -358,7 +363,10 @@ namespace HTC.UnityPlugin.VRModuleManagement
 
         public override bool ShouldActiveModule()
         {
-#if UNITY_5_4_OR_NEWER
+#if UNITY_2019_3_OR_NEWER && VIU_XR_GENERAL_SETTINGS
+            return VIUSettings.activateSteamVRModule && (UnityXRModule.HasActiveLoader(OPENVR_XR_LOADER_NAME) ||
+                (XRSettings.enabled && XRSettings.loadedDeviceName == "OpenVR"));
+#elif UNITY_5_4_OR_NEWER
             return VIUSettings.activateSteamVRModule && XRSettings.enabled && XRSettings.loadedDeviceName == "OpenVR";
 #else
             return VIUSettings.activateSteamVRModule && SteamVR.enabled;
@@ -370,7 +378,6 @@ namespace HTC.UnityPlugin.VRModuleManagement
             m_digitalDataSize = (uint)Marshal.SizeOf(new InputDigitalActionData_t());
             m_analogDataSize = (uint)Marshal.SizeOf(new InputAnalogActionData_t());
             m_originInfoSize = (uint)Marshal.SizeOf(new InputOriginInfo_t());
-            m_activeActionSetSize = (uint)Marshal.SizeOf(new VRActiveActionSet_t());
 
 
             m_poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
@@ -701,5 +708,5 @@ namespace HTC.UnityPlugin.VRModuleManagement
             }
         }
 #endif
-        }
     }
+}
