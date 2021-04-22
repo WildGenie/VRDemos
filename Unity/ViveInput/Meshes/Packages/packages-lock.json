@@ -13,7 +13,11 @@
       "dependencies": {}
     },
     "com.unity.ads": {
+<<<<<<< HEAD
       "version": "3.4.9",
+=======
+      "version": "3.5.2",
+>>>>>>> develop
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -38,7 +42,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ext.nunit": {
+<<<<<<< HEAD
       "version": "1.0.0",
+=======
+      "version": "1.0.5",
+>>>>>>> develop
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -54,7 +62,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.vscode": {
+<<<<<<< HEAD
       "version": "1.2.1",
+=======
+      "version": "1.2.3",
+>>>>>>> develop
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -70,7 +82,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.purchasing": {
+<<<<<<< HEAD
       "version": "2.1.0",
+=======
+      "version": "2.1.1",
+>>>>>>> develop
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -79,11 +95,19 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
+<<<<<<< HEAD
       "version": "1.1.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.0",
+=======
+      "version": "1.1.19",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ext.nunit": "1.0.5",
+>>>>>>> develop
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
       },
@@ -115,7 +139,18 @@
       }
     },
     "com.unity.xr.legacyinputhelpers": {
+<<<<<<< HEAD
       "version": "2.1.4",
+=======
+      "version": "2.1.6",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.xr.openvr.standalone": {
+      "version": "2.0.5",
+>>>>>>> develop
       "depth": 0,
       "source": "registry",
       "dependencies": {},
