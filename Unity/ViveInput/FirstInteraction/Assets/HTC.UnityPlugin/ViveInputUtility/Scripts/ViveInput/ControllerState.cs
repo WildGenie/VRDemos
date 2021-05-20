@@ -1,8 +1,9 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2021, HTC Corporation. All rights reserved. ===========
 
 using HTC.UnityPlugin.Utility;
 using HTC.UnityPlugin.VRModuleManagement;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HTC.UnityPlugin.Vive
@@ -15,7 +16,7 @@ namespace HTC.UnityPlugin.Vive
 
         private interface ICtrlState
         {
-            bool Update(); // return true if  frame skipped
+            bool Update(); // return true if frame skipped
             void AddListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click);
             void RemoveListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click);
             void AddListener(ControllerButton button, RoleValueEventListener listener, ButtonEventType type = ButtonEventType.Click);
@@ -30,11 +31,13 @@ namespace HTC.UnityPlugin.Vive
             Vector2 GetPadPressVector();
             Vector2 GetPadTouchVector();
             Vector2 GetScrollDelta(ScrollType scrollType, Vector2 scale, ControllerAxis xAxis = ControllerAxis.PadX, ControllerAxis yAxis = ControllerAxis.PadY);
+            ulong PreviousButtonPressed { get; }
+            ulong CurrentButtonPressed { get; }
         }
 
         private class CtrlState : ICtrlState
         {
-            public virtual bool Update() { return true; } // return true if  frame skipped
+            public virtual bool Update() { return true; } // return true if frame skipped
             public virtual void AddListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click) { }
             public virtual void RemoveListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click) { }
             public virtual void AddListener(ControllerButton button, RoleValueEventListener listener, ButtonEventType type = ButtonEventType.Click) { }
@@ -49,6 +52,8 @@ namespace HTC.UnityPlugin.Vive
             public virtual Vector2 GetPadPressVector() { return Vector2.zero; }
             public virtual Vector2 GetPadTouchVector() { return Vector2.zero; }
             public virtual Vector2 GetScrollDelta(ScrollType scrollType, Vector2 scale, ControllerAxis xAxis = ControllerAxis.PadX, ControllerAxis yAxis = ControllerAxis.PadY) { return Vector2.zero; }
+            public virtual ulong PreviousButtonPressed { get { return 0ul; } }
+            public virtual ulong CurrentButtonPressed { get { return 0ul; } }
         }
 
         private sealed class RCtrlState : CtrlState
@@ -78,6 +83,10 @@ namespace HTC.UnityPlugin.Vive
 
             private const float hairDelta = 0.1f; // amount trigger must be pulled or released to change state
             private float hairTriggerLimit;
+
+            public override ulong PreviousButtonPressed { get { return prevButtonPressed; } }
+
+            public override ulong CurrentButtonPressed { get { return currButtonPressed; } }
 
             public RCtrlState(Type roleEnumType, int roleValue)
             {
@@ -116,10 +125,6 @@ namespace HTC.UnityPlugin.Vive
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.System, currState.GetButtonPress(VRModuleRawButton.System));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Menu, currState.GetButtonPress(VRModuleRawButton.ApplicationMenu));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.MenuTouch, currState.GetButtonTouch(VRModuleRawButton.ApplicationMenu));
-                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Trigger, currState.GetButtonPress(VRModuleRawButton.Trigger));
-                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.TriggerTouch, currState.GetButtonTouch(VRModuleRawButton.Trigger));
-                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Pad, currState.GetButtonPress(VRModuleRawButton.Touchpad));
-                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.PadTouch, currState.GetButtonTouch(VRModuleRawButton.Touchpad));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Grip, currState.GetButtonPress(VRModuleRawButton.Grip));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.GripTouch, currState.GetButtonTouch(VRModuleRawButton.Grip));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.CapSenseGrip, currState.GetButtonPress(VRModuleRawButton.CapSenseGrip));
@@ -133,85 +138,148 @@ namespace HTC.UnityPlugin.Vive
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Axis4, currState.GetButtonPress(VRModuleRawButton.Axis4));
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Axis4Touch, currState.GetButtonTouch(VRModuleRawButton.Axis4));
 
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.IndexPinch, currState.GetButtonPress(VRModuleRawButton.GestureIndexPinch));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.MiddlePinch, currState.GetButtonPress(VRModuleRawButton.GestureMiddlePinch));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.RingPinch, currState.GetButtonPress(VRModuleRawButton.GestureRingPinch));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.PinkyPinch, currState.GetButtonPress(VRModuleRawButton.GesturePinkyPinch));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Fist, currState.GetButtonPress(VRModuleRawButton.GestureFist));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Five, currState.GetButtonPress(VRModuleRawButton.GestureFive));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Ok, currState.GetButtonPress(VRModuleRawButton.GestureOk));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.ThumbUp, currState.GetButtonPress(VRModuleRawButton.GestureThumbUp));
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.IndexUp, currState.GetButtonPress(VRModuleRawButton.GestureIndexUp));
+
                 // update axis values
+                float currTriggerValue;
                 currAxisValue[(int)ControllerAxis.PadX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
                 currAxisValue[(int)ControllerAxis.PadY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
-                currAxisValue[(int)ControllerAxis.Trigger] = currState.GetAxisValue(VRModuleRawAxis.Trigger);
+                currAxisValue[(int)ControllerAxis.Trigger] = currTriggerValue = currState.GetAxisValue(VRModuleRawAxis.Trigger);
                 currAxisValue[(int)ControllerAxis.CapSenseGrip] = currState.GetAxisValue(VRModuleRawAxis.CapSenseGrip);
                 currAxisValue[(int)ControllerAxis.IndexCurl] = currState.GetAxisValue(VRModuleRawAxis.IndexCurl);
                 currAxisValue[(int)ControllerAxis.MiddleCurl] = currState.GetAxisValue(VRModuleRawAxis.MiddleCurl);
                 currAxisValue[(int)ControllerAxis.RingCurl] = currState.GetAxisValue(VRModuleRawAxis.RingCurl);
                 currAxisValue[(int)ControllerAxis.PinkyCurl] = currState.GetAxisValue(VRModuleRawAxis.PinkyCurl);
+                currAxisValue[(int)ControllerAxis.IndexPinch] = currState.GetAxisValue(VRModuleRawAxis.IndexPinch);
+                currAxisValue[(int)ControllerAxis.MiddlePinch] = currState.GetAxisValue(VRModuleRawAxis.MiddlePinch);
+                currAxisValue[(int)ControllerAxis.RingPinch] = currState.GetAxisValue(VRModuleRawAxis.RingPinch);
+                currAxisValue[(int)ControllerAxis.PinkyPinch] = currState.GetAxisValue(VRModuleRawAxis.PinkyPinch);
 
+                var padAxis = default(Vector2);
+                var padPress = false;
+                var padTouch = false;
+                var stickAxis = default(Vector2);
+                var stickPress = false;
+                var stickTouch = false;
                 switch (currentInput2DType)
                 {
                     case VRModuleInput2DType.Unknown:
                     case VRModuleInput2DType.TrackpadOnly:
-                        currAxisValue[(int)ControllerAxis.PadX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
-                        currAxisValue[(int)ControllerAxis.PadY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
+                        padAxis = new Vector2(currState.GetAxisValue(VRModuleRawAxis.TouchpadX), currState.GetAxisValue(VRModuleRawAxis.TouchpadY));
+                        padPress = currState.GetButtonPress(VRModuleRawButton.Touchpad);
+                        padTouch = currState.GetButtonTouch(VRModuleRawButton.Touchpad);
                         if (!VIUSettings.individualTouchpadJoystickValue)
                         {
-                            currAxisValue[(int)ControllerAxis.JoystickX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
-                            currAxisValue[(int)ControllerAxis.JoystickY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
+                            stickAxis = padAxis;
+                            stickPress = padPress;
+                            stickTouch = padTouch;
                         }
                         break;
                     case VRModuleInput2DType.JoystickOnly:
-                        currAxisValue[(int)ControllerAxis.JoystickX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
-                        currAxisValue[(int)ControllerAxis.JoystickY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
+                        stickAxis = new Vector2(currState.GetAxisValue(VRModuleRawAxis.TouchpadX), currState.GetAxisValue(VRModuleRawAxis.TouchpadY));
+                        stickPress = currState.GetButtonPress(VRModuleRawButton.Touchpad);
+                        stickTouch = currState.GetButtonTouch(VRModuleRawButton.Touchpad);
                         if (!VIUSettings.individualTouchpadJoystickValue)
                         {
-                            currAxisValue[(int)ControllerAxis.PadX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
-                            currAxisValue[(int)ControllerAxis.PadY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
+                            padAxis = stickAxis;
+                            padPress = stickPress;
+                            padTouch = stickTouch;
                         }
                         break;
                     case VRModuleInput2DType.Both:
-                        currAxisValue[(int)ControllerAxis.PadX] = currState.GetAxisValue(VRModuleRawAxis.TouchpadX);
-                        currAxisValue[(int)ControllerAxis.PadY] = currState.GetAxisValue(VRModuleRawAxis.TouchpadY);
-                        currAxisValue[(int)ControllerAxis.JoystickX] = currState.GetAxisValue(VRModuleRawAxis.JoystickX);
-                        currAxisValue[(int)ControllerAxis.JoystickY] = currState.GetAxisValue(VRModuleRawAxis.JoystickY);
+                        padAxis = new Vector2(currState.GetAxisValue(VRModuleRawAxis.TouchpadX), currState.GetAxisValue(VRModuleRawAxis.TouchpadY));
+                        padPress = currState.GetButtonPress(VRModuleRawButton.Touchpad);
+                        padTouch = currState.GetButtonTouch(VRModuleRawButton.Touchpad);
+                        stickAxis = new Vector2(currState.GetAxisValue(VRModuleRawAxis.JoystickX), currState.GetAxisValue(VRModuleRawAxis.JoystickY));
+                        stickPress = currState.GetButtonPress(VRModuleRawButton.Joystick);
+                        stickTouch = currState.GetButtonTouch(VRModuleRawButton.Joystick);
                         break;
                 }
 
-                // update d-pad
-                var axis = new Vector2(currAxisValue[(int)ControllerAxis.PadX], currAxisValue[(int)ControllerAxis.PadY]);
-                var deadZone = VIUSettings.virtualDPadDeadZone;
+                currAxisValue[(int)ControllerAxis.PadX] = padAxis.x;
+                currAxisValue[(int)ControllerAxis.PadY] = padAxis.y;
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Pad, padPress);
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.PadTouch, padTouch);
+                currAxisValue[(int)ControllerAxis.JoystickX] = stickAxis.x;
+                currAxisValue[(int)ControllerAxis.JoystickY] = stickAxis.y;
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Joystick, stickPress);
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.JoystickToucn, stickTouch);
 
-                if (axis.sqrMagnitude >= deadZone * deadZone)
+                if (padPress || padTouch || stickPress || stickTouch)
                 {
-                    var padPress = GetPress(ControllerButton.Pad);
-                    var padTouch = GetPress(ControllerButton.PadTouch);
+                    // update d-pad
+                    var deadZone = VIUSettings.virtualDPadDeadZone;
 
-                    var right = Vector2.Angle(Vector2.right, axis) < 45f;
-                    var up = Vector2.Angle(Vector2.up, axis) < 45f;
-                    var left = Vector2.Angle(Vector2.left, axis) < 45f;
-                    var down = Vector2.Angle(Vector2.down, axis) < 45f;
+                    bool pressed, touched;
+                    Vector2 axis;
+                    if (padPress || padTouch)
+                    {
+                        pressed = padPress;
+                        touched = padTouch;
+                        axis = padAxis;
+                    }
+                    else
+                    {
+                        pressed = stickPress;
+                        touched = stickTouch;
+                        axis = stickAxis;
+                    }
 
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadRight, padPress && right);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUp, padPress && up);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLeft, padPress && left);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadDown, padPress && down);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadRightTouch, padTouch && right);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpTouch, padTouch && up);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLeftTouch, padTouch && left);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadDownTouch, padTouch && down);
+                    if (axis.sqrMagnitude >= deadZone * deadZone)
+                    {
+                        var mitreAxis = new Vector2(Vector2.Dot(axis, new Vector2(1f, 1f)), Vector2.Dot(axis, new Vector2(1f, -1f)));
+                        var right = mitreAxis.x >= 0f && mitreAxis.y >= 0f;
+                        var up = mitreAxis.x >= 0f && mitreAxis.y < 0f;
+                        var left = mitreAxis.x < 0f && mitreAxis.y < 0f;
+                        var down = mitreAxis.x < 0f && mitreAxis.y >= 0f;
 
-                    var upperRight = axis.x > 0f && axis.y > 0f;
-                    var upperLeft = axis.x < 0f && axis.y > 0f;
-                    var lowerLeft = axis.x < 0f && axis.y < 0f;
-                    var lowerRight = axis.x > 0f && axis.y < 0f;
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadRight, pressed && right);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUp, pressed && up);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLeft, pressed && left);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadDown, pressed && down);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadRightTouch, touched && right);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpTouch, touched && up);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLeftTouch, touched && left);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadDownTouch, touched && down);
 
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperRight, padPress && upperRight);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperLeft, padPress && upperLeft);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerLeft, padPress && lowerLeft);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerRight, padPress && lowerRight);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperRightTouch, padTouch && upperRight);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperLeftTouch, padTouch && upperLeft);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerLeftTouch, padTouch && lowerLeft);
-                    EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerRightTouch, padTouch && lowerRight);
+                        var upperRight = axis.x >= 0f && axis.y >= 0f;
+                        var upperLeft = axis.x < 0f && axis.y >= 0f;
+                        var lowerLeft = axis.x < 0f && axis.y < 0f;
+                        var lowerRight = axis.x >= 0f && axis.y < 0f;
+
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperRight, pressed && upperRight);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperLeft, pressed && upperLeft);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerLeft, pressed && lowerLeft);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerRight, pressed && lowerRight);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperRightTouch, touched && upperRight);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadUpperLeftTouch, touched && upperLeft);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerLeftTouch, touched && lowerLeft);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadLowerRightTouch, touched && lowerRight);
+                    }
+                    else
+                    {
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadCenter, pressed);
+                        EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.DPadCenterTouch, touched);
+                    }
                 }
 
                 // update hair trigger
-                var currTriggerValue = currAxisValue[(int)ControllerAxis.Trigger];
+                var rawTriggerPressed = currState.GetButtonPress(VRModuleRawButton.Trigger);
+                var prevTriggerPressed = GetPress(ControllerButton.Trigger, true);
+                var currTriggerPressed = currTriggerValue == 0f ? rawTriggerPressed : (prevTriggerPressed ? currTriggerValue >= 0.45f : currTriggerValue >= 0.55f);
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.Trigger, currTriggerPressed);
+
+                var prevTriggerTouch = GetPress(ControllerButton.TriggerTouch, true);
+                var currTriggerTouch = currState.GetButtonTouch(VRModuleRawButton.Trigger) || (prevTriggerTouch ? currTriggerValue >= 0.25f : currTriggerValue >= 0.20f);
+                EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.TriggerTouch, currTriggerTouch);
 
                 EnumUtils.SetFlag(ref currButtonPressed, (int)ControllerButton.FullTrigger, currTriggerValue >= 0.99f);
 
@@ -438,7 +506,7 @@ namespace HTC.UnityPlugin.Vive
                         case VRModuleInput2DType.Both:
                             var padValue = Vector2.SqrMagnitude(new Vector2(GetAxis(ControllerAxis.PadX), GetAxis(ControllerAxis.PadY)));
                             var stickValue = Vector2.SqrMagnitude(new Vector2(GetAxis(ControllerAxis.JoystickX), GetAxis(ControllerAxis.JoystickY)));
-                            if(padValue > stickValue)
+                            if (padValue > stickValue)
                             {
                                 xAxis = ControllerAxis.PadX;
                                 yAxis = ControllerAxis.PadY;
@@ -509,7 +577,7 @@ namespace HTC.UnityPlugin.Vive
 
         private class GCtrlState<TRole> : ICtrlState<TRole>
         {
-            public virtual bool Update() { return true; } // return true if  frame skipped
+            public virtual bool Update() { return true; } // return true if frame skipped
             public virtual void AddListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click) { }
             public virtual void RemoveListener(ControllerButton button, Action listener, ButtonEventType type = ButtonEventType.Click) { }
             public virtual void AddListener(ControllerButton button, RoleValueEventListener listener, ButtonEventType type = ButtonEventType.Click) { }
@@ -524,6 +592,8 @@ namespace HTC.UnityPlugin.Vive
             public virtual Vector2 GetPadPressVector() { return Vector2.zero; }
             public virtual Vector2 GetPadTouchVector() { return Vector2.zero; }
             public virtual Vector2 GetScrollDelta(ScrollType scrollType, Vector2 scale, ControllerAxis xAxis = ControllerAxis.PadX, ControllerAxis yAxis = ControllerAxis.PadY) { return Vector2.zero; }
+            public virtual ulong PreviousButtonPressed { get { return 0ul; } }
+            public virtual ulong CurrentButtonPressed { get { return 0ul; } }
 
             public virtual void AddListener(ControllerButton button, RoleEventListener<TRole> listener, ButtonEventType type = ButtonEventType.Click) { }
             public virtual void RemoveListener(ControllerButton button, RoleEventListener<TRole> listener, ButtonEventType type = ButtonEventType.Click) { }
@@ -542,6 +612,10 @@ namespace HTC.UnityPlugin.Vive
 
             private RoleEventListener<TRole>[][] listeners;
 
+            public override ulong PreviousButtonPressed { get { return m_state.PreviousButtonPressed; } }
+
+            public override ulong CurrentButtonPressed { get { return m_state.CurrentButtonPressed; } }
+
             public RGCtrolState(TRole role)
             {
                 var info = ViveRoleEnum.GetInfo<TRole>();
@@ -549,7 +623,7 @@ namespace HTC.UnityPlugin.Vive
                 m_role = role;
             }
 
-            // return true if  frame skipped
+            // return true if frame skipped
             public override bool Update()
             {
                 if (m_state.Update()) { return true; }

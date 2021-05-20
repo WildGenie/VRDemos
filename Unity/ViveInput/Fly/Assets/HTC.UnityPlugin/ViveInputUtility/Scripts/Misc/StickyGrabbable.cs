@@ -1,8 +1,12 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2021, HTC Corporation. All rights reserved. ===========
 
+#pragma warning disable 0649
 using HTC.UnityPlugin.ColliderEvent;
+using HTC.UnityPlugin.LiteCoroutineSystem;
 using HTC.UnityPlugin.Utility;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -11,31 +15,13 @@ using GrabberPool = HTC.UnityPlugin.Utility.ObjectPool<HTC.UnityPlugin.Vive.Stic
 namespace HTC.UnityPlugin.Vive
 {
     [AddComponentMenu("VIU/Object Grabber/Sticky Grabbable", 1)]
-    public class StickyGrabbable : GrabbableBase<StickyGrabbable.Grabber>
+    public class StickyGrabbable : GrabbableBase<ColliderButtonEventData, StickyGrabbable.Grabber>
         , IColliderEventPressDownHandler
     {
-        public class Grabber : IGrabber
+        public class Grabber : GrabberBase<ColliderButtonEventData>
         {
             private static GrabberPool m_pool;
-
-            public ColliderButtonEventData eventData { get; private set; }
-
-            public RigidPose grabberOrigin
-            {
-                get
-                {
-                    return new RigidPose(eventData.eventCaster.transform);
-                }
-            }
-
-            public RigidPose grabOffset { get; set; }
-
-            // NOTE:
-            // We can't make sure the excution order of OnColliderEventPressDown() and Update()
-            // Hence log grabFrame to avoid redundant release in Update()
-            // and redeayForRelease flag(remove grabber from m_eventGrabberSet one frame later) to avoid redundant grabbing in OnColliderEventPressDown()
-            public int grabFrame { get; set; }
-            public bool redeayForRelease { get; set; }
+            private ColliderButtonEventData m_eventData;
 
             public static Grabber Get(ColliderButtonEventData eventData)
             {
@@ -45,22 +31,44 @@ namespace HTC.UnityPlugin.Vive
                 }
 
                 var grabber = m_pool.Get();
-                grabber.eventData = eventData;
-                grabber.redeayForRelease = false;
+                grabber.m_eventData = eventData;
                 return grabber;
             }
 
             public static void Release(Grabber grabber)
             {
-                grabber.eventData = null;
+                grabber.m_eventData = null;
                 m_pool.Release(grabber);
             }
+
+            public override ColliderButtonEventData eventData { get { return m_eventData; } }
+
+            public override RigidPose grabberOrigin { get { return new RigidPose(eventData.eventCaster.transform); } }
+
+            public override RigidPose grabOffset { get; set; }
+
+            [Obsolete("This property nolonger used")]
+            public int grabFrame { get; set; }
+            [Obsolete("This property nolonger used")]
+            public bool redeayForRelease { get; set; }
         }
 
         [Serializable]
         public class UnityEventGrabbable : UnityEvent<StickyGrabbable> { }
 
-        private IndexedTable<ColliderButtonEventData, Grabber> m_eventGrabberSet;
+        private struct ButtonProcessedState
+        {
+            public bool isGrabbing;
+            public int processedFrame;
+        }
+
+        // NOTE:
+        // We can't make sure the excution order of OnColliderEventPressDown() and Update()
+        // Hence log grabFrame to avoid redundant release in Update()
+        // and redeayForRelease flag(remove grabber from m_eventGrabberSet one frame later) to avoid redundant grabbing in OnColliderEventPressDown()
+        private IndexedTable<ColliderButtonEventData, ButtonProcessedState> m_buttonProcessedFrame = new IndexedTable<ColliderButtonEventData, ButtonProcessedState>();
+        private LiteCoroutine m_updateCoroutine;
+        private LiteCoroutine m_physicsCoroutine;
 
         public bool alignPosition;
         public bool alignRotation;
@@ -77,12 +85,21 @@ namespace HTC.UnityPlugin.Vive
         [SerializeField]
         private bool m_unblockableGrab = true;
         [SerializeField]
+        [FlagsFromEnum(typeof(ControllerButton))]
+        private ulong m_primaryGrabButton = 0ul;
+        [SerializeField]
+        [FlagsFromEnum(typeof(ColliderButtonEventData.InputButton))]
+        private uint m_secondaryGrabButton = 1u << (int)ColliderButtonEventData.InputButton.Trigger;
+        [SerializeField]
+        [HideInInspector]
         private ColliderButtonEventData.InputButton m_grabButton = ColliderButtonEventData.InputButton.Trigger;
         [SerializeField]
         private bool m_toggleToRelease = true;
         [FormerlySerializedAs("m_multipleGrabbers")]
         [SerializeField]
         private bool m_allowMultipleGrabbers = false;
+        [SerializeField]
+        private bool m_grabOnLastEntered = false;
         [FormerlySerializedAs("afterGrabbed")]
         [SerializeField]
         private UnityEventGrabbable m_afterGrabbed = new UnityEventGrabbable();
@@ -101,6 +118,8 @@ namespace HTC.UnityPlugin.Vive
 
         public bool toggleToRelease { get { return m_toggleToRelease; } set { m_toggleToRelease = value; } }
 
+        public bool grabOnLastEntered { get { return m_grabOnLastEntered; } set { m_grabOnLastEntered = value; } }
+
         public UnityEventGrabbable afterGrabbed { get { return m_afterGrabbed; } }
 
         public UnityEventGrabbable beforeRelease { get { return m_beforeRelease; } }
@@ -109,130 +128,200 @@ namespace HTC.UnityPlugin.Vive
 
         public ColliderButtonEventData grabbedEvent { get { return isGrabbed ? currentGrabber.eventData : null; } }
 
+        public ulong primaryGrabButton { get { return m_primaryGrabButton; } set { m_primaryGrabButton = value; } }
+
+        public uint secondaryGrabButton { get { return m_secondaryGrabButton; } set { m_secondaryGrabButton = value; } }
+
+        public bool allowMultipleGrabbers { get { return m_allowMultipleGrabbers; } set { allowMultipleGrabbers = value; } }
+
+        [Obsolete("Use IsSecondaryGrabButtonOn and SetSecondaryGrabButton instead")]
         public ColliderButtonEventData.InputButton grabButton
         {
             get
             {
-                return m_grabButton;
+                for (uint btn = 0u, btns = m_secondaryGrabButton; btns > 0u; btns >>= 1, ++btn)
+                {
+                    if ((btns & 1u) > 0u) { return (ColliderButtonEventData.InputButton)btn; }
+                }
+                return ColliderButtonEventData.InputButton.None;
             }
-            set
-            {
-                m_grabButton = value;
-                MaterialChanger.SetAllChildrenHeighlightButton(gameObject, value);
-            }
+            set { m_secondaryGrabButton = 1u << (int)value; }
         }
 
         private bool moveByVelocity { get { return !unblockableGrab && grabRigidbody != null && !grabRigidbody.isKinematic; } }
+
+        public bool IsPrimeryGrabButtonOn(ControllerButton btn) { return EnumUtils.GetFlag(m_primaryGrabButton, (int)btn); }
+
+        public void SetPrimeryGrabButton(ControllerButton btn, bool isOn = true) { EnumUtils.SetFlag(ref m_primaryGrabButton, (int)btn, isOn); }
+
+        public void ClearPrimeryGrabButton() { m_primaryGrabButton = 0ul; }
+
+        public bool IsSecondaryGrabButtonOn(ColliderButtonEventData.InputButton btn) { return EnumUtils.GetFlag(m_secondaryGrabButton, (int)btn); }
+
+        public void SetSecondaryGrabButton(ColliderButtonEventData.InputButton btn, bool isOn = true) { EnumUtils.SetFlag(ref m_secondaryGrabButton, (int)btn, isOn); }
+
+        public void ClearSecondaryGrabButton() { m_secondaryGrabButton = 0u; }
 
         [Obsolete("Use grabRigidbody instead")]
         public Rigidbody rigid { get { return grabRigidbody; } set { grabRigidbody = value; } }
 
 #if UNITY_EDITOR
-        protected virtual void OnValidate()
-        {
-            MaterialChanger.SetAllChildrenHeighlightButton(gameObject, m_grabButton);
-        }
+        protected virtual void OnValidate() { RestoreObsoleteGrabButton(); }
+
+        protected virtual void Reset() { m_grabOnLastEntered = true; }
 #endif
+        private void RestoreObsoleteGrabButton()
+        {
+            if (m_grabButton == ColliderButtonEventData.InputButton.Trigger) { return; }
+            ClearSecondaryGrabButton();
+            SetSecondaryGrabButton(m_grabButton, true);
+            m_grabButton = ColliderButtonEventData.InputButton.Trigger;
+        }
 
         protected override void Awake()
         {
             base.Awake();
-            MaterialChanger.SetAllChildrenHeighlightButton(gameObject, m_grabButton);
+
+            RestoreObsoleteGrabButton();
 
             afterGrabberGrabbed += () => m_afterGrabbed.Invoke(this);
             beforeGrabberReleased += () => m_beforeRelease.Invoke(this);
             onGrabberDrop += () => m_onDrop.Invoke(this);
         }
 
-        protected virtual void OnDisable()
+        protected virtual void OnDisable() { ForceRelease(); }
+
+        protected override Grabber CreateGrabber(ColliderButtonEventData eventData)
         {
-            ClearGrabbers(true);
-            ClearEventGrabberSet();
+            var grabber = Grabber.Get(eventData);
+            var offset = RigidPose.FromToPose(grabber.grabberOrigin, new RigidPose(transform));
+            if (alignPosition) { offset.pos = alignPositionOffset; }
+            if (alignRotation) { offset.rot = Quaternion.Euler(alignRotationOffset); }
+            grabber.grabOffset = offset;
+
+            return grabber;
         }
 
-        private void ClearEventGrabberSet()
+        protected override void DestoryGrabber(Grabber grabber)
         {
-            if (m_eventGrabberSet == null) { return; }
+            Grabber.Release(grabber);
+        }
 
-            for (int i = m_eventGrabberSet.Count - 1; i >= 0; --i)
+        protected bool IsValidGrabButton(ColliderButtonEventData eventData)
+        {
+            if (m_primaryGrabButton > 0ul)
             {
-                Grabber.Release(m_eventGrabberSet.GetValueByIndex(i));
+                ViveColliderButtonEventData viveEventData;
+                if (eventData.TryGetViveButtonEventData(out viveEventData) && IsPrimeryGrabButtonOn(viveEventData.viveButton)) { return true; }
             }
 
-            m_eventGrabberSet.Clear();
+            return m_secondaryGrabButton > 0u && IsSecondaryGrabButtonOn(eventData.button);
         }
 
         public virtual void OnColliderEventPressDown(ColliderButtonEventData eventData)
         {
-            if (eventData.button != m_grabButton) { return; }
+            if (!IsValidGrabButton(eventData)) { return; }
 
             Grabber grabber;
-            if (m_eventGrabberSet == null || !m_eventGrabberSet.TryGetValue(eventData, out grabber))
+            if (TryGetExistsGrabber(eventData, out grabber)) { return; }
+
+            var currentFrame = Time.frameCount;
+            ButtonProcessedState pState;
+            if (m_buttonProcessedFrame.TryGetValue(eventData, out pState))
             {
-                if (!m_allowMultipleGrabbers)
+                // skip if button was just processed for release
+                if (pState.processedFrame == currentFrame)
                 {
-                    ClearGrabbers(false);
-                    ClearEventGrabberSet();
+                    Debug.Assert(!pState.isGrabbing);
+                    return;
                 }
-
-                grabber = Grabber.Get(eventData);
-                var offset = RigidPose.FromToPose(grabber.grabberOrigin, new RigidPose(transform));
-                if (alignPosition) { offset.pos = alignPositionOffset; }
-                if (alignRotation) { offset.rot = Quaternion.Euler(alignRotationOffset); }
-                grabber.grabOffset = offset;
-                grabber.grabFrame = Time.frameCount;
-
-                if (m_eventGrabberSet == null) { m_eventGrabberSet = new IndexedTable<ColliderButtonEventData, Grabber>(); }
-                m_eventGrabberSet.Add(eventData, grabber);
-
-                AddGrabber(grabber);
             }
-            else if (toggleToRelease)
+
+            if (!m_allowMultipleGrabbers) { ClearGrabbers(); }
+
+            if (m_grabOnLastEntered && !eventData.eventCaster.lastEnteredCollider.transform.IsChildOf(transform)) { return; }
+
+            if (AddGrabber(eventData))
             {
-                RemoveGrabber(grabber);
-                m_eventGrabberSet.Remove(eventData);
-                Grabber.Release(grabber);
+                m_buttonProcessedFrame[eventData] = new ButtonProcessedState()
+                {
+                    isGrabbing = true,
+                    processedFrame = currentFrame
+                };
+
+                if (m_updateCoroutine.IsNullOrDone())
+                {
+                    LiteCoroutine.StartCoroutine(ref m_updateCoroutine, GrabUpdate(), false);
+
+                    if (moveByVelocity)
+                    {
+                        LiteCoroutine.StartCoroutine(ref m_physicsCoroutine, PhysicsGrabUpdate(), false);
+                    }
+                }
             }
         }
 
-        protected virtual void FixedUpdate()
+        private IEnumerator PhysicsGrabUpdate()
         {
-            if (isGrabbed && moveByVelocity)
+            yield return new WaitForFixedUpdate();
+
+            while (isGrabbed)
             {
                 OnGrabRigidbody();
+
+                yield return new WaitForFixedUpdate();
             }
+
+            yield break;
         }
 
-        protected virtual void Update()
+        private IEnumerator GrabUpdate()
         {
-            if (!isGrabbed) { return; }
+            yield return null;
 
-            if (!moveByVelocity)
+            while (isGrabbed)
             {
-                RecordLatestPosesForDrop(Time.time, 0.05f);
-                OnGrabTransform();
-            }
-
-            // check toggle release
-            if (toggleToRelease)
-            {
-                m_eventGrabberSet.RemoveAll((pair) =>
+                if (!moveByVelocity)
                 {
-                    var grabber = pair.Value;
-                    if (!grabber.eventData.GetPressDown()) { return false; }
+                    RecordLatestPosesForDrop(Time.time, 0.05f);
+                    OnGrabTransform();
+                }
 
-                    if (grabber.grabFrame == Time.frameCount) { return false; }
-
-                    if (!grabber.redeayForRelease)
+                if (toggleToRelease && m_buttonProcessedFrame.Count > 0)
+                {
+                    var currentFrame = Time.frameCount;
+                    for (int i = m_buttonProcessedFrame.Count - 1; i >= 0; --i)
                     {
-                        RemoveGrabber(grabber);
-                        grabber.redeayForRelease = true;
-                        return false;
-                    }
+                        var pState = m_buttonProcessedFrame.GetValueByIndex(i);
+                        // skip if button was just processed for grab
+                        if (pState.processedFrame == currentFrame)
+                        {
+                            Debug.Assert(pState.isGrabbing);
+                            continue;
+                        }
 
-                    Grabber.Release(grabber);
-                    return true;
-                });
+                        if (!pState.isGrabbing)
+                        {
+                            m_buttonProcessedFrame.RemoveAt(i);
+                        }
+                        else
+                        {
+                            var eventData = m_buttonProcessedFrame.GetKeyByIndex(i);
+                            if (!eventData.GetPressDown()) { continue; }
+
+                            if (RemoveGrabber(eventData))
+                            {
+                                m_buttonProcessedFrame.SetValueByIndex(i, new ButtonProcessedState()
+                                {
+                                    isGrabbing = false,
+                                    processedFrame = currentFrame,
+                                });
+                            }
+                        }
+                    }
+                }
+
+                yield return null;
             }
         }
     }

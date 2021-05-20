@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71e10a6c8bc50f348a3bcd045dce48c3, type: 3}
   m_Name: VIUSettings
   m_EditorClassIdentifier: 
-  m_autoCheckNewVIUVersion: 0
-  m_virtualDPadDeadZone: 0.15
+  m_autoCheckNewVIUVersion: 1
+  m_virtualDPadDeadZone: 0.25
   m_individualTouchpadJoystickValue: 0
   m_autoLoadBindingConfigOnStart: 1
   m_bindingConfigFilePath: vive_role_bindings.cfg
@@ -30,7 +30,7 @@ MonoBehaviour:
   m_externalCameraSwitchKey: 109
   m_externalCameraSwitchKeyModifier: 303
   m_activateOculusVRModule: 1
-  m_oculusVRAndroidManifestPath: C:/Users/brill/Develop/Github/VirtualReality/VRDemos/Unity/ViveInput/VIUGrab/Assets/Plugins/Android/AndroidManifest.xml
+  m_oculusVRAndroidManifestPath: 
   m_activateSteamVRModule: 1
   m_activateSimulatorModule: 1
   m_simulatorAutoTrackMainCamera: 1
@@ -43,6 +43,7 @@ MonoBehaviour:
   m_simulatorRightControllerModel: 2
   m_simulatorOtherModel: 3
   m_activateUnityNativeVRModule: 1
+  m_activateUnityXRModule: 0
   m_activateWaveVRModule: 1
   m_simulateWaveVR6DoFController: 0
   m_waveVRAddVirtualArmTo3DoFController: 1
