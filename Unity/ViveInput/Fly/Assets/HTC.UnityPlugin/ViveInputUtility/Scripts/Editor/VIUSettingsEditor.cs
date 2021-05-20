@@ -1,4 +1,4 @@
-﻿//========= Copyright 2016-2019, HTC Corporation. All rights reserved. ===========
+﻿//========= Copyright 2016-2021, HTC Corporation. All rights reserved. ===========
 
 using HTC.UnityPlugin.Utility;
 using HTC.UnityPlugin.VRModuleManagement;
@@ -7,12 +7,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+
 #if UNITY_2018_1_OR_NEWER
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
 #endif
+
 using GraphicsDeviceType = UnityEngine.Rendering.GraphicsDeviceType;
 
 
@@ -105,6 +108,7 @@ namespace HTC.UnityPlugin.Vive
             public static readonly VRSDK OpenVR = new VRSDK("OpenVR", true);
             public static readonly VRSDK Daydream = new VRSDK("daydream");
             public static readonly VRSDK MockHMD = new VRSDK("MockHMD");
+            public static readonly VRSDK WindowsMR = new VRSDK("WindowsMR");
 
             public static bool vrEnabled
             {
@@ -119,7 +123,11 @@ namespace HTC.UnityPlugin.Vive
                     if (vrEnabled != value)
                     {
                         s_isDirty = true;
+#if UNITY_2018_1_OR_NEWER
+                        s_vrEnabled = value && (!PackageManagerHelper.IsPackageInList(OPENVR_XR_PACKAGE_NAME) || !PackageManagerHelper.IsPackageInList(OCULUS_XR_PACKAGE_NAME));
+#else
                         s_vrEnabled = value;
+#endif
                     }
                 }
             }
@@ -258,6 +266,18 @@ namespace HTC.UnityPlugin.Vive
                 }
             }
 
+            public void ShowFoldoutWithLabel(GUIContent content)
+            {
+                GUILayout.BeginHorizontal();
+                ShowFoldoutButton();
+                if (GUILayout.Button(content, EditorStyles.label))
+                {
+                    isExpended = !isExpended;
+                }
+                //EditorGUILayout.LabelField(content);
+                GUILayout.EndHorizontal();
+            }
+
             public bool ShowFoldoutButtonOnToggleEnabled(GUIContent content, bool toggleValue)
             {
                 GUILayout.BeginHorizontal();
@@ -323,6 +343,7 @@ namespace HTC.UnityPlugin.Vive
             private static bool m_wasAdded;
             private static ListRequest m_listRequest;
             private static AddRequest m_addRequest;
+            private static string s_fallbackIdentifier;
 
             public static bool isPreparingList
             {
@@ -337,7 +358,7 @@ namespace HTC.UnityPlugin.Vive
                         case StatusCode.Failure:
                             if (!s_wasPreparing)
                             {
-                                Debug.LogError("Something wrong when adding package to list. error:" + m_addRequest.Error.errorCode + "(" + m_addRequest.Error.message + ")");
+                                Debug.LogError("Something wrong when adding package to list. error:" + m_listRequest.Error.errorCode + "(" + m_listRequest.Error.message + ")");
                             }
                             break;
                         case StatusCode.Success:
@@ -361,13 +382,26 @@ namespace HTC.UnityPlugin.Vive
                         case StatusCode.Failure:
                             if (!m_wasAdded)
                             {
-                                Debug.LogError("Something wrong when adding package to list. error:" + m_addRequest.Error.errorCode + "(" + m_addRequest.Error.message + ")");
+                                AddRequest request = m_addRequest;
+                                m_addRequest = null;
+                                if (string.IsNullOrEmpty(s_fallbackIdentifier))
+                                {
+                                    Debug.LogError("Something wrong when adding package to list. error:" + request.Error.errorCode + "(" + request.Error.message + ")");
+                                }
+                                else
+                                {
+                                    Debug.Log("Failed to install package: \"" + request.Error.message + "\". Retry with fallback identifier \"" + s_fallbackIdentifier + "\"");
+                                    AddToPackageList(s_fallbackIdentifier);
+                                }
+
+                                s_fallbackIdentifier = null;
                             }
                             break;
                         case StatusCode.Success:
                             if (!m_wasAdded)
                             {
                                 m_addRequest = null;
+                                s_fallbackIdentifier = null;
                                 ResetPackageList();
                             }
                             break;
@@ -380,7 +414,11 @@ namespace HTC.UnityPlugin.Vive
             public static void PreparePackageList()
             {
                 if (m_listRequest != null) { return; }
+#if UNITY_2019_3_OR_NEWER
+                m_listRequest = Client.List(true, true);
+#else
                 m_listRequest = Client.List(true);
+#endif
             }
 
             public static void ResetPackageList()
@@ -396,20 +434,33 @@ namespace HTC.UnityPlugin.Vive
                 return m_listRequest.Result.Any(pkg => pkg.name == name);
             }
 
-            public static void AddToPackageList(string name)
+            public static void AddToPackageList(string identifier, string fallbackIdentifier = null)
             {
                 Debug.Assert(m_addRequest == null);
-                m_addRequest = Client.Add(name);
+
+                m_addRequest = Client.Add(identifier);
+                s_fallbackIdentifier = fallbackIdentifier;
+            }
+
+            public static PackageCollection GetPackageList()
+            {
+                if (m_listRequest == null || m_listRequest.Result == null)
+                {
+                    return null;
+                }
+
+                return m_listRequest.Result;
             }
 #else
             public static bool isPreparingList { get { return false; } }
             public static bool isAddingToList { get { return false; } }
             public static void PreparePackageList() { }
             public static void ResetPackageList() { }
-            public static bool IsPackageInList(string name) { return true; }
-            public static void AddToPackageList(string name) { }
+            public static bool IsPackageInList(string name) { return false; }
+            public static void AddToPackageList(string identifier, string fallbackIdentifier = null) { }
 #endif
         }
+
         private abstract class VRPlatformSetting
         {
             public bool isStandaloneVR { get { return requirdPlatform == BuildTargetGroup.Standalone; } }
@@ -426,20 +477,21 @@ namespace HTC.UnityPlugin.Vive
         private static VRPlatformSetting[] s_platformSettings;
 
         public const string URL_VIU_GITHUB_RELEASE_PAGE = "https://github.com/ViveSoftware/ViveInputUtility-Unity/releases";
-        public const string URL_STEAM_VR_PLUGIN = "https://www.assetstore.unity3d.com/en/#!/content/32647";
-        public const string URL_OCULUS_VR_PLUGIN = "https://www.assetstore.unity3d.com/en/#!/content/82022";
-        public const string URL_GOOGLE_VR_PLUGIN = "https://developers.google.com/vr/develop/unity/download";
-        public const string URL_WAVE_VR_PLUGIN = "https://developer.vive.com/resources/knowledgebase/wave-sdk/";
-        public const string URL_WAVE_VR_6DOF_SUMULATOR_USAGE_PAGE = "https://github.com/ViveSoftware/ViveInputUtility-Unity/wiki/Wave-VR-6-DoF-Controller-Simulator";
+        public const string OPENXR_PLUGIN_PACKAGE_NAME = "com.unity.xr.openxr";
+
+        private const string DEFAULT_ASSET_PATH = "Assets/VIUSettings/Resources/VIUSettings.asset";
 
         private static Vector2 s_scrollValue = Vector2.zero;
         private static float s_warningHeight;
         private static GUIStyle s_labelStyle;
         private static bool s_guiChanged;
+        private static bool s_symbolChanged;
         private static string s_defaultAssetPath;
+        private static string s_VIUPackageName = null;
 
         private static Foldouter s_autoBindFoldouter = new Foldouter();
         private static Foldouter s_bindingUIFoldouter = new Foldouter();
+        private static Foldouter s_overrideModelFoldouter = new Foldouter();
 
         static VIUSettingsEditor()
         {
@@ -456,6 +508,7 @@ namespace HTC.UnityPlugin.Vive
         public static ISupportedSDK OculusSDK { get { return VRSDKSettings.Oculus; } }
         public static ISupportedSDK DaydreamSDK { get { return VRSDKSettings.Daydream; } }
         public static ISupportedSDK MockHMDSDK { get { return VRSDKSettings.MockHMD; } }
+        public static ISupportedSDK WindowsMRSDK { get { return VRSDKSettings.WindowsMR; } }
         public static void ApplySDKChanges() { VRSDKSettings.ApplyChanges(); }
 
         public static BuildTargetGroup activeBuildTargetGroup { get { return BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget); } }
@@ -466,10 +519,7 @@ namespace HTC.UnityPlugin.Vive
             {
                 if (s_defaultAssetPath == null)
                 {
-                    var ms = MonoScript.FromScriptableObject(VIUSettings.Instance);
-                    var path = AssetDatabase.GetAssetPath(ms);
-                    path = System.IO.Path.GetDirectoryName(path);
-                    s_defaultAssetPath = path.Substring(0, path.Length - "Scripts".Length) + "Resources/" + VIUSettings.DEFAULT_RESOURCE_PATH + ".asset";
+                    s_defaultAssetPath = DEFAULT_ASSET_PATH;
                 }
 
                 return s_defaultAssetPath;
@@ -521,6 +571,29 @@ namespace HTC.UnityPlugin.Vive
             }
         }
 
+        public static string VIUPackageName
+        {
+            get
+            {
+                if (s_VIUPackageName == null)
+                {
+                    MonoScript script = MonoScript.FromScriptableObject(VIUSettings.Instance);
+                    string settingsPath = AssetDatabase.GetAssetPath(script);
+                    Match match = Regex.Match(settingsPath, @"^Packages\/([^\/]+)\/");
+                    if (match.Success)
+                    {
+                        s_VIUPackageName = match.Groups[1].Value;
+                    }
+                    else
+                    {
+                        s_VIUPackageName = "";
+                    }
+                }
+
+                return s_VIUPackageName;
+            }
+        }
+
         public static bool GraphicsAPIContainsOnly(BuildTarget buildTarget, params GraphicsDeviceType[] types)
         {
             if (PlayerSettings.GetUseDefaultGraphicsAPIs(buildTarget)) { return false; }
@@ -546,7 +619,9 @@ namespace HTC.UnityPlugin.Vive
             PlayerSettings.SetGraphicsAPIs(buildTarget, types);
         }
 
+#pragma warning disable 0618
         [PreferenceItem("VIU Settings")]
+#pragma warning restore 0618
         private static void OnVIUPreferenceGUI()
         {
 #if UNITY_2017_1_OR_NEWER
@@ -578,6 +653,7 @@ namespace HTC.UnityPlugin.Vive
             Foldouter.Initialize();
 
             s_guiChanged = false;
+            s_symbolChanged = false;
 
             s_scrollValue = EditorGUILayout.BeginScrollView(s_scrollValue);
 
@@ -608,12 +684,19 @@ namespace HTC.UnityPlugin.Vive
                 EditorGUI.indentLevel += 2;
 
                 // on Windows, following preferences is stored at HKEY_CURRENT_USER\Software\Unity Technologies\Unity Editor 5.x\
+#if UNITY_2019_1_OR_NEWER
+                if (!EditorPrefs.GetBool("SdkUseEmbedded") && string.IsNullOrEmpty(EditorPrefs.GetString("AndroidSdkRoot")))
+#else
                 if (string.IsNullOrEmpty(EditorPrefs.GetString("AndroidSdkRoot")))
+#endif
                 {
                     EditorGUILayout.HelpBox("AndroidSdkRoot is empty. Setup at Edit -> Preferences... -> External Tools -> Android SDK", MessageType.Warning);
                 }
-
+#if UNITY_2018_3_OR_NEWER
+                if (!EditorPrefs.GetBool("JdkUseEmbedded") && string.IsNullOrEmpty(EditorPrefs.GetString("JdkPath")))
+#else
                 if (string.IsNullOrEmpty(EditorPrefs.GetString("JdkPath")))
+#endif
                 {
                     EditorGUILayout.HelpBox("JdkPath is empty. Setup at Edit -> Preferences... -> External Tools -> Android JDK", MessageType.Warning);
                 }
@@ -698,38 +781,69 @@ namespace HTC.UnityPlugin.Vive
                 if (supportAnyStandaloneVR && VIUSettings.enableBindingInterfaceSwitch) { s_guiChanged |= EditorGUI.EndChangeCheck(); } else { GUI.enabled = true; }
             }
 
+            GUILayout.Space(5);
+
+            EditorGUILayout.LabelField("<b>Other</b>", s_labelStyle);
+            GUILayout.Space(5);
+
+            s_overrideModelFoldouter.ShowFoldoutWithLabel(new GUIContent("Globel Custom Render Model", "Override model object created by RenderModelHook with custom render model"));
+            if (s_overrideModelFoldouter.isExpended)
+            {
+                EditorGUI.BeginChangeCheck();
+                EditorGUI.indentLevel += 1;
+                foreach (var e in EnumArrayBase<VRModuleDeviceModel>.StaticEnums)
+                {
+                    EditorGUILayout.ObjectField(ObjectNames.NicifyVariableName(e.ToString()), VIUSettings.GetOverrideDeviceModel(e), typeof(GameObject), false);
+                }
+                EditorGUI.indentLevel -= 1;
+                s_guiChanged |= EditorGUI.EndChangeCheck();
+            }
+
             //Foldouter.ApplyChanges();
             ApplySDKChanges();
 
-            var assetPath = AssetDatabase.GetAssetPath(VIUSettings.Instance);
+            var viuSettingsAssetPath = AssetDatabase.GetAssetPath(VIUSettings.Instance);
+            var moduleSettingsAssetPath = AssetDatabase.GetAssetPath(VRModuleSettings.Instance);
 
             if (s_guiChanged)
             {
-                if (string.IsNullOrEmpty(assetPath))
+                if (string.IsNullOrEmpty(viuSettingsAssetPath))
                 {
+                    Directory.CreateDirectory(Path.GetDirectoryName(defaultAssetPath));
                     AssetDatabase.CreateAsset(VIUSettings.Instance, defaultAssetPath);
                 }
 
                 EditorUtility.SetDirty(VIUSettings.Instance);
 
-                VIUVersionCheck.UpdateIgnoredNotifiedSettingsCount(false);
+                if (string.IsNullOrEmpty(moduleSettingsAssetPath))
+                {
+                    const string defaultModuleSettingsAssetPath = "Assets/VIUSettings/Resources/VRModuleSettings.asset";
+                    Directory.CreateDirectory(Path.GetDirectoryName(defaultModuleSettingsAssetPath));
+                    AssetDatabase.CreateAsset(VRModuleSettings.Instance, defaultModuleSettingsAssetPath);
+                }
 
-                VRModuleManagerEditor.UpdateScriptingDefineSymbols();
+                EditorUtility.SetDirty(VRModuleSettings.Instance);
+
+                VIUVersionCheck.UpdateIgnoredNotifiedSettingsCount(false);
             }
 
-            if (!string.IsNullOrEmpty(assetPath))
+            if (!string.IsNullOrEmpty(viuSettingsAssetPath) || !string.IsNullOrEmpty(moduleSettingsAssetPath))
             {
                 GUILayout.Space(10);
 
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Use Default Settings"))
                 {
-                    AssetDatabase.DeleteAsset(assetPath);
-                    supportSimulator = canSupportSimulator;
-                    supportOpenVR = canSupportOpenVR;
-                    supportOculus = canSupportOculus;
-                    supportDaydream = canSupportDaydream;
-                    supportWaveVR = canSupportWaveVR;
+                    AssetDatabase.DeleteAsset(viuSettingsAssetPath);
+                    AssetDatabase.DeleteAsset(moduleSettingsAssetPath);
+                    foreach (var ps in s_platformSettings)
+                    {
+                        if (ps.canSupport && !ps.support)
+                        {
+                            ps.support = true;
+                            s_symbolChanged |= ps.support;
+                        }
+                    }
 
                     VRSDKSettings.ApplyChanges();
                 }
@@ -740,10 +854,15 @@ namespace HTC.UnityPlugin.Vive
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(new GUIContent("Repair Define Symbols", "Repair symbols that handled by VIU.")))
             {
-                VRModuleManagerEditor.UpdateScriptingDefineSymbols();
+                s_symbolChanged = true;
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+
+            if (s_symbolChanged)
+            {
+                VRModuleManagerEditor.UpdateScriptingDefineSymbols();
+            }
 
             //if (GUILayout.Button("Create Partial Action Set", GUILayout.ExpandWidth(false)))
             //{
@@ -848,11 +967,11 @@ namespace HTC.UnityPlugin.Vive
             }
         }
 
-        private static void ShowAddPackageButton(string displayName, string pkgName)
+        private static void ShowAddPackageButton(string displayName, string identifier, string fallbackIdentifier = null)
         {
-            if (GUILayout.Button(new GUIContent("Add " + displayName + " Package", "Add " + pkgName + " to Package Manager"), GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button(new GUIContent("Add " + displayName + " Package", "Add " + identifier + " to Package Manager"), GUILayout.ExpandWidth(false)))
             {
-                PackageManagerHelper.AddToPackageList(pkgName);
+                PackageManagerHelper.AddToPackageList(identifier, fallbackIdentifier);
             }
         }
 
