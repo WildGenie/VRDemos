@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18173365, g: 0.22739774, b: 0.3074197, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,8 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 51795039af63006429a7a7f9d5495c8b,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -118,6 +119,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -197,6 +200,7 @@ Light:
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &97039364
@@ -260,6 +264,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -284,6 +289,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &445642093
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -319,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 475840, guid: 2b3a4efa04a7cf2428e0835b20f15fdc, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 475840, guid: 2b3a4efa04a7cf2428e0835b20f15fdc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -379,7 +385,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: ae3e88fc577c9e240ba89dc1e3317f2e,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ae3e88fc577c9e240ba89dc1e3317f2e,
         type: 3}
@@ -485,7 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Normal: {fileID: 2100000, guid: e2416570217cbfa4796f0d0a9f4abae0, type: 2}
-  Heightlight: {fileID: 2100000, guid: 33afa4e05e65a464da18151e5a44bd10, type: 2}
+  Hovered: {fileID: 2100000, guid: 685c3681cd547ad449a87ebb4d1b7e96, type: 2}
   Pressed: {fileID: 2100000, guid: 33afa4e05e65a464da18151e5a44bd10, type: 2}
   dragged: {fileID: 2100000, guid: b3d9baf221f09ab47b97dfc5834b7d23, type: 2}
   heighlightButton: 0
@@ -510,8 +516,11 @@ MonoBehaviour:
   m_followingDuration: 0.04
   m_overrideMaxAngularVelocity: 1
   m_unblockableGrab: 1
+  m_primaryGrabButton: 0
+  m_secondaryGrabButton: 1
   m_grabButton: 0
   m_allowMultipleGrabbers: 1
+  m_grabOnLastEntered: 0
   m_afterGrabbed:
     m_PersistentCalls:
       m_Calls: []
@@ -568,6 +577,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 3
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -592,6 +602,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1167628614
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -657,9 +668,12 @@ MonoBehaviour:
   m_followingDuration: 0.04
   m_overrideMaxAngularVelocity: 1
   m_unblockableGrab: 1
+  m_primaryGrabButton: 0
+  m_secondaryGrabButton: 1
   m_grabButton: 0
   m_toggleToRelease: 1
   m_allowMultipleGrabbers: 0
+  m_grabOnLastEntered: 0
   m_afterGrabbed:
     m_PersistentCalls:
       m_Calls: []
@@ -698,7 +712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Normal: {fileID: 2100000, guid: fd96093bfd42e9c45aa835fcc65c34c8, type: 2}
-  Heightlight: {fileID: 2100000, guid: 33afa4e05e65a464da18151e5a44bd10, type: 2}
+  Hovered: {fileID: 2100000, guid: 685c3681cd547ad449a87ebb4d1b7e96, type: 2}
   Pressed: {fileID: 2100000, guid: 33afa4e05e65a464da18151e5a44bd10, type: 2}
   dragged: {fileID: 2100000, guid: b3d9baf221f09ab47b97dfc5834b7d23, type: 2}
   heighlightButton: 0
@@ -730,6 +744,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -754,6 +769,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1494871320
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -823,6 +839,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -847,6 +864,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!33 &1578927698
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -878,7 +896,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 463184, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 463184, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -937,7 +955,15 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_onIsValidChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: onIsValidChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_onIsValidChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
@@ -946,6 +972,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
       propertyPath: onIsValidChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 11472306, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+      propertyPath: m_onIsValidChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 11489386, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
@@ -999,8 +1029,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1589978882}
   - {fileID: 503790392}
+  - {fileID: 1589978882}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1017,7 +1047,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4834014279826076, guid: dd8056a7a93ef144685a0d32e2561925, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4834014279826076, guid: dd8056a7a93ef144685a0d32e2561925, type: 3}
       propertyPath: m_LocalScale.x
@@ -1037,7 +1067,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4834014279826076, guid: dd8056a7a93ef144685a0d32e2561925, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.05
+      value: 1.118
       objectReference: {fileID: 0}
     - target: {fileID: 4834014279826076, guid: dd8056a7a93ef144685a0d32e2561925, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1100,8 +1130,11 @@ MonoBehaviour:
   m_followingDuration: 0.04
   m_overrideMaxAngularVelocity: 1
   m_unblockableGrab: 1
+  m_primaryGrabButton: 0
+  m_secondaryGrabButton: 1
   m_grabButton: 0
   m_allowMultipleGrabbers: 1
+  m_grabOnLastEntered: 0
   m_afterGrabbed:
     m_PersistentCalls:
       m_Calls: []
