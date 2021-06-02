@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//========= 2021 - Copyright Manfred Brill. All rights reserved. ===========
+using UnityEngine;
 using HTC.UnityPlugin.Vive;
 
 /// <summary>
@@ -14,26 +15,25 @@ using HTC.UnityPlugin.Vive;
 /// Mit Trackpad oben und unten können wir beschleunigen
 /// bzw. abbremsen.
 /// </summary>
-public class Flying : MonoBehaviour
+public class Fly : MonoBehaviour
 {
     [Header("Geräte und Buttons")]
-    /// <summary>
-    /// Welchen Controller verwenden wir für die Locomotion?
-    /// 
-    /// Als Default verwenden wir den Controller in der rechten Hand,
-    /// also "RightHand" im "ViveCameraRig".
-    /// </summary>
-    [Tooltip("Rechter oder linker Controller?")]
-    public HandRole flyControl = HandRole.RightHand;
-
     /// <summary>
     /// Welches GameObject verwenden wir für die Definition der Richtung?
     /// 
     /// Sinnvoll ist einer der beiden Controller, aber auch andere
     /// GameObjects (wie der Kopf) können verwendet werden.
     /// </summary>
-    [Tooltip("Welches GameObject verwenden wir für die Definition der Richtung?\nSinnvoll ist einer der Controller, aber auch andere Objekte sind zulässig.")]
+    [Tooltip("Welches GameObject verwenden wir für die Definition der Richtung?")]
     public GameObject flyOrientation;
+    /// <summary>
+    /// Welchen Controller verwenden wir für die Locomotion?
+    /// 
+    /// Als Default verwenden wir den Controller in der rechten Hand,
+    /// also "RightHand" im "ViveCameraRig".
+    /// </summary>
+    [Tooltip("Rechter oder linker Controller für die Taste?")]
+    public HandRole flyControl = HandRole.RightHand;
 
     /// <summary>
     /// Der verwendete Button, der die Bewegung auslöst, kann im Editor mit Hilfe
@@ -42,7 +42,10 @@ public class Flying : MonoBehaviour
     /// Default ist "Trigger"
     /// </summary>
     [Tooltip("Welchen Button verwenden wir für das Fliegen?\n Wir fliegen so lange der Button gedrückt ist.")]
-    public ControllerButton flyButton = ControllerButton.FullTrigger;
+    public ControllerButton flyButton = ControllerButton.Trigger;
+
+
+    public ControllerButton reverseButton = ControllerButton.Pad;
 
     /// <summary>
     /// Button auf dem Controller für das Abbremsen der Fortbewegung.
@@ -65,13 +68,15 @@ public class Flying : MonoBehaviour
     /// </summary>
     [Header("Parameter für das Travelling")]
     [Tooltip("Faktor für die Geschwindigkeit der Bewegung")]
-    [Range(0.1f, 2.0f)]
-    public float speed = 0.5f;
+    [Range(0.001f, 0.2f)]
+    public float speed = 0.005f;
 
     /// <summary>
     /// Delta für Beschleunigen und Abbremsen
     /// </summary>
-    private float deltaSpeed = 0.005f;
+    private float deltaSpeed = 0.001f;
+
+    private int reverseGear = 1;
 
     /// <summary>
     /// Die Callbacks für Beschleunigung und Abbremsen registrieren.
@@ -80,6 +85,10 @@ public class Flying : MonoBehaviour
     {
         ViveInput.AddListenerEx(this.flyControl, decButton, ButtonEventType.Down, DecreaseSpeed);
         ViveInput.AddListenerEx(this.flyControl, accButton, ButtonEventType.Down, IncreaseSpeed);
+        ViveInput.AddListenerEx(this.flyControl, reverseButton, ButtonEventType.Down, ToggleDirection);
+
+        if (reverseGear == 1)
+            Debug.Log("Vorwärtsgang eingeschaltet");
     }
 
     /// <summary>
@@ -89,6 +98,7 @@ public class Flying : MonoBehaviour
     {
         ViveInput.RemoveListenerEx(this.flyControl, decButton, ButtonEventType.Down, DecreaseSpeed);
         ViveInput.RemoveListenerEx(this.flyControl, accButton, ButtonEventType.Down, IncreaseSpeed);
+        ViveInput.RemoveListenerEx(this.flyControl, reverseButton, ButtonEventType.Down, ToggleDirection);
     }
 
     /// <summary>
@@ -100,11 +110,30 @@ public class Flying : MonoBehaviour
         Debug.Log("speed verkleinert auf " + this.speed);
     }
 
+    /// <summary>
+    /// Abbremsen
+    /// </summary>
     private void DecreaseSpeed()
     {
         speed += this.deltaSpeed;
         Debug.Log("speed vergrößert auf " + this.speed);
     }
+
+
+    /// <summary>
+    /// Rückwärtsfahren
+    /// </summary>
+    private void ToggleDirection()
+    {
+        reverseGear = -reverseGear;
+
+        if (reverseGear == 1)
+            Debug.Log("Vorwärtsgang");
+        else
+            Debug.Log("Rückwärtsgang");
+
+    }
+
 
     /// <summary>
     /// In Update abfragen, ob der Button gedrückt wurde
@@ -112,8 +141,9 @@ public class Flying : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+
         if (ViveInput.GetPress(this.flyControl, this.flyButton))
-            Fly();
+            Move();
     }
 
     /// <summary>
@@ -121,12 +151,8 @@ public class Flying : MonoBehaviour
     /// Richtungsdefinition verwenden und übertragen diese Orientierung
     /// auf das von uns manipulierte GameObject (typischer Weise die Kamera).
     /// </summary>
-    private void Fly()
+    private void Move()
     {
-        Quaternion moveOrientation = flyOrientation.transform.rotation;
-        Vector3 dir = (moveOrientation * Vector3.forward).normalized;
-
-        transform.rotation = moveOrientation;
-        transform.Translate(speed * Time.deltaTime * dir);
+        transform.Translate(reverseGear * speed * flyOrientation.transform.forward);
     }
 }
