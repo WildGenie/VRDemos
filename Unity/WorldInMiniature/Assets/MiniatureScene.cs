@@ -24,35 +24,27 @@ public class MiniatureScene : MonoBehaviour
     public string TargetSceneName = "MiniWorld";
 
     public GameObject SourceObjectRoot;
-    public GameObject PreviewRoot;
+    public GameObject PreviewRoot;    
 
-    //private GameObject[] _objects;
-    //private GameObject[] _previewObjects;
-    //private Vector3[] _initPreviewPositions;    
-
-    private bool isPreviewing = false;
+    //private bool isPreviewing = false;
+    private bool isOnHand = false;
 
     private Vector3 tablePos;
-
     private Vector3[] _lastPos;
+
+    // Increase scale slightly to make it a better fit for the table
+    private float tableScaleIncrease = 3f; //3f;
+
 
     private void Update()
     {
-        if (isPreviewing)
+        if (isOnHand)
         {
-            //UpdatePreviewObjects();
-            MapPreviewChangesToSourceObjects();
-
-            
+            UpdatePreviewObjectsInHand();
+            //MapPreviewChangesToSourceObjects();            
         }
 
-        if(SourceObjectRoot.transform.childCount == PreviewRoot.transform.childCount)
-        {
-            
-        }
     }
-
-
 
     public void PreviewObjects()
     {
@@ -85,7 +77,8 @@ public class MiniatureScene : MonoBehaviour
                 renderer.material.color = Color.blue;
             }
 
-            float tableScaleIncrease = 3f;
+            
+
             // Scale preview
             obj.transform.localScale = new Vector3(
                 PreviewScaleFactor * tableScaleIncrease,
@@ -96,8 +89,6 @@ public class MiniatureScene : MonoBehaviour
             float x = pos.x * (PreviewScaleFactor * tableScaleIncrease);
             float y = pos.y * (PreviewScaleFactor * tableScaleIncrease);
             float z = pos.z * (PreviewScaleFactor * tableScaleIncrease);
-
-
 
             // Move preview elements to table
             tablePos = table.transform.position;
@@ -128,9 +119,16 @@ public class MiniatureScene : MonoBehaviour
         }
 
         // Activate rendering of preview elements
-        isPreviewing = true;
+        //isPreviewing = true;
 
 
+    }
+
+    public void MovePreviewToHand()
+    {
+        //PreviewRoot.transform.localScale *= tableScaleIncrease;
+
+        isOnHand = true;
     }
 
     private void MapDrag(Draggable arg0)
@@ -182,7 +180,7 @@ public class MiniatureScene : MonoBehaviour
         }
     }
 
-    private void UpdatePreviewObjects()
+    private void UpdatePreviewObjectsInHand()
     {
         var pose1 = VivePose.GetPoseEx(HandRole.RightHand);
         var pose2 = VivePose.GetPoseEx(TrackerRole.Tracker1);
@@ -191,15 +189,18 @@ public class MiniatureScene : MonoBehaviour
         GameObject o = PreviewRoot;
 
         // Calculate offset based on current HMD position
-        Vector3 offsetVector = hmdPose.TransformPoint(hmdPose.pos);
+        //Vector3 offsetVector = hmdPose.TransformPoint(hmdPose.pos);
 
-        offsetVector.z += 2f;
-        offsetVector.y = 1.5f;
+        //offsetVector.z += 2f;
+        //offsetVector.y = 1.5f;
 
         Vector3 vrOrgPos = GameObject.Find("VR_Origin").transform.position;
+        vrOrgPos.y = 0f;
         Vector3 offset = pose1.pos;
-        offset.y += 0.125f;
+        offset.y = 0.125f;
+        //Debug.Log("offSet: " + offset);
         o.transform.position = vrOrgPos + offset;
+        
 
         // Apply controller rotation to scene preview
         o.transform.rotation = pose1.rot;
