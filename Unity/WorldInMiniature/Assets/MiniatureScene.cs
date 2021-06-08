@@ -7,128 +7,78 @@ using System;
 
 public class MiniatureScene : MonoBehaviour
 {
-    public float PreviewScaleFactor = 0.025f;
+    [Header("Parents")]
+    public GameObject SourceObjectRoot;
+    public GameObject PreviewRoot;
 
-    private float _invScaleFac = float.NaN;
-    private float InvScaleFactor { 
-        get
-        {
-            if(float.IsNaN(_invScaleFac))
-            {
-                _invScaleFac = 1 / PreviewScaleFactor;
-            }
-            return _invScaleFac;
-        }
-    }
+    [Header("Table Preview")]
+    [Range(0.01f, 1f)]
+    public float TableScale = 0.25f;
 
+    [Space]
+    public GameObject PreviewTable;
+
+    [Header("Hand Preview")]
+    [Range(0.01f, 1f)]
+    public float HandScale = 0.025f;
+    
+
+    [Header("Scene Transition")]
     public string TargetSceneName = "MiniWorld";
 
-    public GameObject SourceObjectRoot;
-    public GameObject PreviewRoot;    
+    private bool initPreviewObjects = false;
 
-    //private bool isPreviewing = false;
-    private bool isOnHand = false;
+    public enum PrevPos { Init = 0, Table = 1, Hand = 2 };
+    private PrevPos currentPrevPos;
 
-    private Vector3 tablePos;
     private Vector3[] _lastPos;
-
-    // Increase scale slightly to make it a better fit for the table
-    private float tableScaleIncrease = 3f; //3f;
 
 
     private void Update()
     {
-        if (isOnHand)
+        if (currentPrevPos == PrevPos.Hand)
         {
             UpdatePreviewObjectsInHand();
             //MapPreviewChangesToSourceObjects();            
-        }
+        }        
 
     }
 
-    public void PreviewObjects()
+    #region Preview
+
+    private void PreviewObjectsOnTable()
     {
-        GameObject[] tmpObjects = new GameObject[SourceObjectRoot.transform.childCount];
-        for (int i = 0; i < tmpObjects.Length; i++)
-        {
-            tmpObjects[i] = SourceObjectRoot.transform.GetChild(i).gameObject;
-        }
+        if(!initPreviewObjects) InitializePreviewObjects();
 
-        _lastPos = new Vector3[tmpObjects.Length];
-
-        GameObject table = GameObject.Find("Table");
-
+        Vector3 newPos = PreviewTable.transform.position;
         
-        // Create a preview clone for every child of source object
-        for (int i = 0; i < SourceObjectRoot.transform.childCount; i++)
-        {
-            bool changeMat = false;
-            if (tmpObjects[i].name.Equals("Plane"))
-            {
-                changeMat = true;
-            }
+        // Make sure objects get placed on top of table (y-Direction)
+        // ToDo: Generalize this for other kinds of rendering components
+        MeshRenderer tableRenderer = PreviewTable.GetComponent<MeshRenderer>();
+        newPos.y += (tableRenderer.bounds.size.y * 0.5f) + 0.01f;
+        PreviewRoot.transform.position = newPos;
 
-            GameObject obj = Instantiate(tmpObjects[i], PreviewRoot.transform);
-            //obj.name = "Preview_" + tmpObjects[i].name;
+        // Scale preview
+        PreviewRoot.transform.localScale = new Vector3(TableScale, TableScale, TableScale);
 
-            if (changeMat)
-            {
-                MeshRenderer renderer = obj.GetComponent<MeshRenderer>();
-                renderer.material.color = Color.blue;
-            }
-
-            
-
-            // Scale preview
-            obj.transform.localScale = new Vector3(
-                PreviewScaleFactor * tableScaleIncrease,
-                PreviewScaleFactor * tableScaleIncrease,
-                PreviewScaleFactor * tableScaleIncrease);
-
-            Vector3 pos = obj.transform.position;
-            float x = pos.x * (PreviewScaleFactor * tableScaleIncrease);
-            float y = pos.y * (PreviewScaleFactor * tableScaleIncrease);
-            float z = pos.z * (PreviewScaleFactor * tableScaleIncrease);
-
-            // Move preview elements to table
-            tablePos = table.transform.position;
-            Vector3 newPos = new Vector3(tablePos.x, tablePos.y, tablePos.z);
-            newPos.x += x;
-            newPos.y += y;
-            newPos.z += z;
-
-            newPos.y = 0.501f;  // 0f;
-            obj.transform.position = newPos;
-
-            var telePort = obj.GetComponent<Teleportable>();
-            if (obj != null)
-                Destroy(telePort);
-
-            //Rigidbody rigB = obj.AddComponent<Rigidbody>();
-            //rigB.constraints = RigidbodyConstraints.FreezeAll;            
-
-            if(!changeMat)
-            {
-                Draggable drag = obj.AddComponent<Draggable>();
-                
-                //drag.afterGrabbed.AddListener(MapDrag);
-                
-
-            }
-                
-        }
-
-        // Activate rendering of preview elements
-        //isPreviewing = true;
-
-
+        // Reset rotation
+        PreviewRoot.transform.rotation = Quaternion.identity;
     }
 
-    public void MovePreviewToHand()
+    public void ChangePreviewPos(int newPos)
     {
-        //PreviewRoot.transform.localScale *= tableScaleIncrease;
+        currentPrevPos = (PrevPos)newPos;
+        switch(currentPrevPos)
+        {
+            case PrevPos.Table:
+                PreviewRoot.transform.localScale = new Vector3(TableScale, TableScale, TableScale);
+                PreviewObjectsOnTable();
+                break;
 
-        isOnHand = true;
+            case PrevPos.Hand:
+                PreviewRoot.transform.localScale = new Vector3(HandScale, HandScale, HandScale);
+                break;
+        }
     }
 
     private void MapDrag(Draggable arg0)
@@ -149,11 +99,105 @@ public class MiniatureScene : MonoBehaviour
 
         GameObject objToMove = SourceObjectRoot.transform.GetChild(index).gameObject;
         Vector3 offSet = arg0.posOffset;
-        objToMove.transform.position += offSet;
-        
-        //pos.x * (PreviewScaleFactor * tableScaleIncrease);
-
+        objToMove.transform.position += offSet;        
     }
+
+    
+    private void UpdatePreviewObjectsInHand()
+    {
+        if (!initPreviewObjects) InitializePreviewObjects();
+
+        var pose1 = VivePose.GetPoseEx(HandRole.RightHand);
+        
+        Vector3 vrOrgPos = GameObject.Find("VR_Origin").transform.position;
+        Vector3 offset = pose1.pos;
+        offset.y += 0.05f;
+        PreviewRoot.transform.position = vrOrgPos + offset;
+        
+        // Apply controller rotation to scene preview
+        PreviewRoot.transform.rotation = pose1.rot;        
+    }
+
+    private void InitializePreviewObjects()
+    {
+        // Get all children of source object
+        GameObject[] tmpObjects = new GameObject[SourceObjectRoot.transform.childCount];
+        for (int i = 0; i < tmpObjects.Length; i++)
+        {
+            tmpObjects[i] = SourceObjectRoot.transform.GetChild(i).gameObject;
+        }
+
+        // Init array to save preview object positions each frame
+        _lastPos = new Vector3[tmpObjects.Length];
+
+        //if (PreviewRoot is null)
+        //{
+        //    // Create empty root
+        //    PreviewRoot = Instantiate(new GameObject("PreviewRoot"), Vector3.zero, Quaternion.identity);
+        //}
+
+
+        // Create a preview clone for every child of source object
+        for (int i = 0; i < SourceObjectRoot.transform.childCount; i++)
+        {
+            bool changeMat = false;
+            if (tmpObjects[i].name.Equals("Plane"))
+            {
+                changeMat = true;
+            }
+
+            GameObject obj = Instantiate(tmpObjects[i], PreviewRoot.transform);
+            //obj.name = "Preview_" + tmpObjects[i].name;
+
+            if (changeMat)
+            {
+                MeshRenderer renderer = obj.GetComponent<MeshRenderer>();
+                renderer.material.color = Color.blue;
+            }
+
+            // Remove VIU teleportable to prevent teleporting onto table
+            Teleportable telePort = obj.GetComponent<Teleportable>();
+            if (obj != null)
+                Destroy(telePort);
+
+            //Rigidbody rigB = obj.AddComponent<Rigidbody>();
+            //rigB.constraints = RigidbodyConstraints.FreezeAll;            
+
+            // If object is not a ground plane, make it draggable
+            if (!changeMat)
+            {
+                Draggable drag = obj.AddComponent<Draggable>();
+            }
+
+        }
+
+        initPreviewObjects = true;
+    }
+
+    private void MapPreviewChangesToSourceObjects()
+    {
+        for (int i = 0; i < PreviewRoot.transform.childCount; i++)
+        {
+            Transform child = PreviewRoot.transform.GetChild(i);
+            
+            // ToDo: Add concrete check if this is a plane if we are doing this at all
+            if(child.gameObject.name.Contains("Plane")) continue;
+
+            Vector3 currentPos = child.transform.position;
+            if (currentPos != _lastPos[i])
+            {
+                Vector3 offSet = currentPos - _lastPos[i];
+                //offSet *= InvScaleFactor;
+                Vector3 newPos = SourceObjectRoot.transform.GetChild(i).position + offSet;
+                SourceObjectRoot.transform.GetChild(i).position = newPos; // * InvScaleFactor;
+            }
+            _lastPos[i] = currentPos;
+        }
+    }
+
+    #endregion Preview
+
+    #region SceneTransition
 
     public void TravelToMiniWorld()
     {
@@ -180,51 +224,6 @@ public class MiniatureScene : MonoBehaviour
         }
     }
 
-    private void UpdatePreviewObjectsInHand()
-    {
-        var pose1 = VivePose.GetPoseEx(HandRole.RightHand);
-        var pose2 = VivePose.GetPoseEx(TrackerRole.Tracker1);
-        var hmdPose = VivePose.GetPoseEx(DeviceRole.Hmd);
-
-        GameObject o = PreviewRoot;
-
-        // Calculate offset based on current HMD position
-        //Vector3 offsetVector = hmdPose.TransformPoint(hmdPose.pos);
-
-        //offsetVector.z += 2f;
-        //offsetVector.y = 1.5f;
-
-        Vector3 vrOrgPos = GameObject.Find("VR_Origin").transform.position;
-        vrOrgPos.y = 0f;
-        Vector3 offset = pose1.pos;
-        offset.y = 0.125f;
-        //Debug.Log("offSet: " + offset);
-        o.transform.position = vrOrgPos + offset;
-        
-
-        // Apply controller rotation to scene preview
-        o.transform.rotation = pose1.rot;
-    }
-
-    private void MapPreviewChangesToSourceObjects()
-    {
-        for (int i = 0; i < PreviewRoot.transform.childCount; i++)
-        {
-            Transform child = PreviewRoot.transform.GetChild(i);
-            
-            // ToDo: Add concrete check if this is a plane if we are doing this at all
-            if(child.gameObject.name.Contains("Plane")) continue;
-
-            Vector3 currentPos = child.transform.position;
-            if (currentPos != _lastPos[i])
-            {
-                Vector3 offSet = currentPos - _lastPos[i];
-                //offSet *= InvScaleFactor;
-                Vector3 newPos = SourceObjectRoot.transform.GetChild(i).position + offSet;
-                SourceObjectRoot.transform.GetChild(i).position = newPos; // * InvScaleFactor;
-            }
-            _lastPos[i] = currentPos;
-        }
-    }
+    #endregion SceneTransition
 
 }
