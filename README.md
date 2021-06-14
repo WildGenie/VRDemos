@@ -4,7 +4,9 @@
 
 Demos für das Praktikum zur Lehrveranstaltung Augmented und Virtual Reality. 
 
-Alle Demos im Verzeichnis zu VIU verwenden Stand 18. September 2020 Unity 2019.4.11f1 LTS, VIU 1.10 und das Package MBU aus dem Repository VRKL.
+Alle Demos im Verzeichnis zu VIU verwenden aktuell Unity 2020.3.0f1 LTS, VIU 1.13 und das Package MBU aus dem Repository VRKL.
+
+Für die Versionen der HTC Vive Focus Plus verwenden wir WaveXR 4. Dafür gibt es aktuell einen eigenen Branch mit der Bezheichnuns wavexr.
 
 
 
