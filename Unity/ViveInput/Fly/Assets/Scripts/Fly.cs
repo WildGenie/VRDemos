@@ -107,7 +107,6 @@ public class Fly : MonoBehaviour
     private void IncreaseSpeed()
     {
         speed -= this.deltaSpeed;
-        Debug.Log("speed verkleinert auf " + this.speed);
     }
 
     /// <summary>
@@ -116,7 +115,6 @@ public class Fly : MonoBehaviour
     private void DecreaseSpeed()
     {
         speed += this.deltaSpeed;
-        Debug.Log("speed vergrößert auf " + this.speed);
     }
 
 
@@ -126,12 +124,6 @@ public class Fly : MonoBehaviour
     private void ToggleDirection()
     {
         reverseGear = -reverseGear;
-
-        if (reverseGear == 1)
-            Debug.Log("Vorwärtsgang");
-        else
-            Debug.Log("Rückwärtsgang");
-
     }
 
 
@@ -139,9 +131,8 @@ public class Fly : MonoBehaviour
     /// In Update abfragen, ob der Button gedrückt wurde
     /// und wir fliegen.
     /// </summary>
-    void FixedUpdate()
+    void Update()
     {
-
         if (ViveInput.GetPress(this.flyControl, this.flyButton))
             Move();
     }
