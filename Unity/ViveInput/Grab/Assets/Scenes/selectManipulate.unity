@@ -516,7 +516,7 @@ MonoBehaviour:
   m_followingDuration: 0.04
   m_overrideMaxAngularVelocity: 1
   m_unblockableGrab: 1
-  m_primaryGrabButton: 0
+  m_primaryGrabButton: 1
   m_secondaryGrabButton: 1
   m_grabButton: 0
   m_allowMultipleGrabbers: 1
@@ -1130,7 +1130,7 @@ MonoBehaviour:
   m_followingDuration: 0.04
   m_overrideMaxAngularVelocity: 1
   m_unblockableGrab: 1
-  m_primaryGrabButton: 0
+  m_primaryGrabButton: 1
   m_secondaryGrabButton: 1
   m_grabButton: 0
   m_allowMultipleGrabbers: 1
