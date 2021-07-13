@@ -64,18 +64,17 @@ public class SupermanFlying : MonoBehaviour
     /// In FixedUpdate abfragen, ob der Button gedrückt wurde
     /// und wir fliegen.
     /// </summary>
-    void FixedUpdate()
+    void Update()
     {
         if (ViveInput.GetPress(flyControl, flyButton))
-            Fly();
-    }
+            Move();
 
     /// <summary>
     /// Wir fragen die Position der verwendeten Hand und des Kopfs ab,
     /// berechnen daraus die Bewegungsrichtung und aus der Länge dieses
     /// Vektors die Geschwindigkeit.
     /// </summary>
-    private void Fly()
+    private void Move()
     {
         Vector3 dir = flyHand.transform.position - head.transform.position;
         float mag = dir.magnitude;
