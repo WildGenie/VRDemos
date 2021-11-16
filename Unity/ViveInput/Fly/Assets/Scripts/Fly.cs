@@ -1,23 +1,22 @@
 ﻿//========= 2021 - Copyright Manfred Brill. All rights reserved. ===========
 using UnityEngine;
-using HTC.UnityPlugin.Vive;
 
 /// <summary>
 /// Fliegen 
 /// 
 /// Als Bewegungsrichtung verwenden wir die Orientierung
-/// des Controllers, der durch die Basisklasse Locomotion festgelegt ist.
+/// des Controllers, der durch die Basisklasse Movement festgelegt ist.
 /// </summary>
-public class Fly : Locomotion
+public class Fly : SingleDirection
 {
 
     /// <summary>
-    /// Wir fragen die Orientierung des Geräts ab, das wir für die
-    /// Richtungsdefinition verwenden und übertragen diese Orientierung
-    /// auf das von uns manipulierte GameObject (typischer Weise die Kamera).
+    /// Wir fragen den Vektor forward des Koordinatensystems des Geräts ab, das wir für die
+    /// Richtungsdefinition verwenden und definieren damit die Bewegungsrichtung.
     /// </summary>
-    protected override void Move()
+    protected override void ComputeMovingDirection()
     {
-        transform.Translate(reverseGear * speed * flyOrientation.transform.forward);
+        movingDirection = orientationObject.transform.forward;
+        movingDirection.Normalize();
     }
 }

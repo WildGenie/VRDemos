@@ -628,13 +628,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb3370c18187bb444b240cfb08dcc02f, type: 3}
+--- !u!1 &1045240124 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 116882, guid: cb3370c18187bb444b240cfb08dcc02f,
+    type: 3}
+  m_PrefabInstance: {fileID: 1045240123}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1303970577 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 175660, guid: cb3370c18187bb444b240cfb08dcc02f,
     type: 3}
   m_PrefabInstance: {fileID: 1045240123}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1303970579
+--- !u!114 &1303970578
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -643,15 +649,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1303970577}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d18cfc0fed9c4614bb65882caf8b20ea, type: 3}
+  m_Script: {fileID: 11500000, guid: e093ab296771e904c8f3c7d260f47ccf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveHand: 0
   moveButton: 0
-  vMax: 0.5
+  vMax: 0.2
   decButton: 1
   accButton: 2
-  orientationObject: {fileID: 1000103372}
+  startObject: {fileID: 1045240124}
+  endObject: {fileID: 1000103372}
 --- !u!1 &1398111303
 GameObject:
   m_ObjectHideFlags: 0
