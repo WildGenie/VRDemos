@@ -2,11 +2,11 @@
 
 ![AVR Logo](http://webhome.hs-kl.de/~brill/Assets/images/vrlogo.jpg)
 
-Demos für das Praktikum zur Lehrveranstaltung Augmented und Virtual Reality. 
+Demos zum Thema VRPN in C++ und Unity für das Praktikum zur Lehrveranstaltung Augmented und Virtual Reality. 
 
-Alle Demos im Verzeichnis zu VIU verwenden aktuell Unity 2020.3.0f1 LTS, VIU 1.13 und das Package MBU aus dem Repository VRKL.
+Demos in diesem Branch verwenden wir Unity 2019 LTS.
 
-Für die Versionen der HTC Vive Focus Plus verwenden wir WaveXR 4. Dafür gibt es aktuell einen eigenen Branch mit der Bezheichnuns wavexr.
+Aktueller Stand ist, dass der verwendete VRPN-Client in Unity 2020 nicht mehr lauffähig ist.
 
 
 
