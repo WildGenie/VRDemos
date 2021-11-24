@@ -1,13 +1,5 @@
-# VRDemos
+# Unity-Anwendungen mit MiddleVR
 
-![AVR Logo](http://webhome.hs-kl.de/~brill/Assets/images/vrlogo.jpg)
+In diesem Verzeichnis befinden sich Unity-Anwendungen, die mit MiddleVR entwickelt werden. Die Anwendungen verwenden die freie Version von MVR 1.x.
 
-Demos für das Praktikum zur Lehrveranstaltung Augmented und Virtual Reality. 
-
-Alle Demos im Verzeichnis zu VIU verwenden aktuell Unity 2020.3.0f1 LTS, VIU 1.13 und das Package MBU aus dem Repository VRKL.
-
-Für die Versionen der HTC Vive Focus Plus verwenden wir WaveXR 4. Dafür gibt es aktuell einen eigenen Branch mit der Bezheichnuns wavexr.
-
-
-
-![Lizenzlogo](https://licensebuttons.net/l/by-nc-sa/3.0/de/88x31.png)
+Die Version 2 existiert nicht mehr als freie Version. Wenn wir auf diese Version migireren muss noch entschieden werden.
