@@ -68,6 +68,7 @@ public class SupermanFlying : MonoBehaviour
     {
         if (ViveInput.GetPress(flyControl, flyButton))
             Move();
+    }
 
     /// <summary>
     /// Wir fragen die Position der verwendeten Hand und des Kopfs ab,
